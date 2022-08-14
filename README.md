@@ -34,3 +34,9 @@
 7주차 승리 조건 적용 및 기타 시간제한 등 추가 설정 요건 구현
 
 8주차 십이장기 게임 시연
+
+# 8/14 십이장기 판 제작
+
+![십이장기 인터페이스1](https://user-images.githubusercontent.com/102570051/184538564-d8068644-84d3-4800-a5aa-24fe923b8fa0.png)  
++ GridPane을 상속 받는 Cell class를 만들어서 기본적인 게임판 제작  
++ BorderPane으로 대략적인 레이아웃 형성  

@@ -1,6 +1,8 @@
 package application;
 
 import javafx.application.Application;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -8,7 +10,10 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontPosture;
 import javafx.scene.text.FontWeight;
@@ -16,7 +21,6 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 public class TwelveChess extends Application{
-	public static int isStart =0;
 	
 	@Override
 	public void start(Stage primaryStage) {
@@ -74,13 +78,14 @@ public class TwelveChess extends Application{
 				+ "∞‘¿”¿Ã ¡æ∑·µ»¥Ÿ.\n");
 		Label rule7 = new Label("7. ¿⁄ºº«— ªÁ«◊¿∫ ≈∑π´¿ß≈∞∑Œ...");
 		
-		btStart.setOnAction(e->{
-			isStart = 1;
-			lbPane.add(tplayer1,0,60);
-			lbPane.add(tplayer2,0, 0);
-			lbPane.getChildren().removeAll(btStart,btRule);
-		}
-		);
+		King1 king1 = new King1();
+		King2 king2 = new King2();
+		Elephant1 elephant1 = new Elephant1();
+		Elephant2 elephant2 = new Elephant2();
+		Rook1 rook1 = new Rook1();
+		Rook2 rook2 = new Rook2();
+		Pawn1 pawn1 = new Pawn1();
+		Pawn2 pawn2 = new Pawn2();
 		
 		btRule.setOnAction(e->{
 			lbPane.add(rtitle,0, 0);
@@ -102,6 +107,68 @@ public class TwelveChess extends Application{
 		}
 		);
 		
+		btStart.setOnAction(e->{
+			lbPane.add(tplayer1,0,60);
+			lbPane.add(tplayer2,0, 0);
+			lbPane.getChildren().removeAll(btStart,btRule);
+			
+			king1.setLocation(1, 3);
+			gameBoard.getChildren().add(king1.pane);
+			king2.setLocation(1, 0);
+			gameBoard.getChildren().add(king2.pane);
+			elephant1.setLocation(0, 3);
+			gameBoard.getChildren().add(elephant1.pane);
+			elephant2.setLocation(2, 0);
+			gameBoard.getChildren().add(elephant2.pane);
+			rook1.setLocation(2, 3);
+			gameBoard.getChildren().add(rook1.pane);
+			rook2.setLocation(0, 0);
+			gameBoard.getChildren().add(rook2.pane);
+			pawn1.setLocation(1, 2);
+			gameBoard.getChildren().add(pawn1.pane);
+			pawn2.setLocation(1, 1);
+			gameBoard.getChildren().add(pawn2.pane);
+			
+		}
+		);
+		
+		king1.pane.setOnMouseClicked(e->{
+			king1.setLocation(0, 2);
+			gameBoard.getChildren().add(king1.pane);
+		});
+		
+		king2.pane.setOnMouseClicked(e->{
+			System.out.println("hello");
+		});
+		
+		elephant1.pane.setOnMouseClicked(e->{
+			System.out.println("hello");
+		});
+		
+		elephant2.pane.setOnMouseClicked(e->{
+			System.out.println("hello");
+		});
+		
+		rook1.pane.setOnMouseClicked(e->{
+			System.out.println("hello");
+		});
+		
+		rook2.pane.setOnMouseClicked(e->{
+			System.out.println("hello");
+		});
+		
+		pawn1.pane.setOnMouseClicked(e->{
+			System.out.println("hello");
+		});
+		
+		pawn2.pane.setOnMouseClicked(e->{
+			System.out.println("hello");
+		});
+		
+		
+		
+		
+		
 		BorderPane bdPane = new BorderPane();
 		bdPane.setPadding(new Insets(15,15,15,15));
 		bdPane.setCenter(gameBoard);
@@ -117,8 +184,320 @@ public class TwelveChess extends Application{
 		primaryStage.show();
 	}
 	
+	class Cell extends GridPane{
+		boolean [][]isFilled = {{true,true,true},{false,true,false},{false,true,false},{true,true,true}};
+		
+		public Cell() {}
+
+		public Cell(int row, int col, int squareSize) {
+			for(int i = 0; i < col; i++) {
+				for(int j = 0; j < row; j++) {
+					Rectangle rec = new Rectangle(0,0,squareSize,squareSize);
+					rec.setFill(Color.WHITE);
+					rec.setStroke(Color.BLACK);
+					rec.setOnMouseClicked(e->System.out.println("HEllo"));
+					super.add(rec,i,j);
+				}
+			}
+		}
+		
+		public boolean getFilled(int col, int row) {
+			return isFilled[col][row];
+		}
+		
+		public void setFilled(int col,int row) {
+			isFilled[col][row] = !isFilled[col][row];
+		}
+		
+		public void addPiece(StackPane p, int col, int row) {
+			super.add(p,col,row);
+		}
+		
+		
+	}
+	
+	class King1 extends Cell{
+		private boolean isClicked = false;
+		private boolean isDead = false;
+		private int row;
+		private int col;
+		StackPane pane = new StackPane();
+		StackPane p = new StackPane();
+		
+		King1(){
+			Rectangle rec = new Rectangle(0,0,130,130);
+			rec.setFill(Color.LIGHTGRAY);
+			rec.setStroke(Color.BLACK);
+			Text text = new Text("Ë›");
+			text.setFont(Font.font("Courier", FontWeight.BOLD, FontPosture.ITALIC, 100));
+			text.setFill(Color.RED);
+			pane.getChildren().add(rec);
+			pane.getChildren().add(text);
+		}
+		
+		public void setLocation(int col, int row) {
+			super.addPiece(pane, col, row);
+			this.row = row;
+			this.col = col;
+		}
+		
+		public int getRow() {
+			return row;
+		}
+		
+		public int getCol() {
+			return col;
+		}
+		
+		
+	}
+	
+	class King2 extends Cell{
+		private int isDead = 0;
+		private int row;
+		private int col;
+		StackPane pane = new StackPane();
+		
+		King2(){
+			Rectangle rec = new Rectangle(0,0,130,130);
+			rec.setFill(Color.LIGHTGRAY);
+			rec.setStroke(Color.BLACK);
+			Text text = new Text("Ë›");
+			text.setFont(Font.font("Courier", FontWeight.BOLD, FontPosture.ITALIC, 100));
+			text.setFill(Color.GREEN);
+			text.setRotate(180);
+			pane.getChildren().add(rec);
+			pane.getChildren().add(text);
+		}
+		
+		public void setLocation(int col, int row) {
+			super.addPiece(pane, col, row);
+			this.row = row;
+			this.col = col;
+		}
+		
+		public int getRow() {
+			return row;
+		}
+		
+		public int getCol() {
+			return col;
+		}
+		
+	}
+	
+	class Elephant1 extends Cell{
+		private int isDead = 0;
+		private int row;
+		private int col;
+		StackPane pane = new StackPane();
+		
+		Elephant1(){
+			Rectangle rec = new Rectangle(0,0,130,130);
+			rec.setFill(Color.LIGHTGRAY);
+			rec.setStroke(Color.BLACK);
+			Text text = new Text("ﬂ”");
+			text.setFont(Font.font("Courier", FontWeight.BOLD, FontPosture.ITALIC, 100));
+			text.setFill(Color.RED);
+			pane.getChildren().add(rec);
+			pane.getChildren().add(text);
+		}
+		
+		public void setLocation(int col, int row) {
+			super.addPiece(pane, col, row);
+			this.row = row;
+			this.col = col;
+		}
+		
+		public int getRow() {
+			return row;
+		}
+		
+		public int getCol() {
+			return col;
+		}
+		
+	}
+	
+	class Elephant2 extends Cell{
+		private int isDead = 0;
+		private int row;
+		private int col;
+		StackPane pane = new StackPane();
+		
+		Elephant2(){
+			Rectangle rec = new Rectangle(0,0,130,130);
+			rec.setFill(Color.LIGHTGRAY);
+			rec.setStroke(Color.BLACK);
+			Text text = new Text("ﬂ”");
+			text.setFont(Font.font("Courier", FontWeight.BOLD, FontPosture.ITALIC, 100));
+			text.setFill(Color.GREEN);
+			text.setRotate(180);
+			pane.getChildren().add(rec);
+			pane.getChildren().add(text);
+		}
+		
+		public void setLocation(int col, int row) {
+			super.addPiece(pane, col, row);
+			this.row = row;
+			this.col = col;
+		}
+		
+		public int getRow() {
+			return row;
+		}
+		
+		public int getCol() {
+			return col;
+		}
+		
+	}
+	
+	class Rook1 extends Cell{
+		private int isDead = 0;
+		private int row;
+		private int col;
+		StackPane pane = new StackPane();
+		
+		Rook1(){
+			Rectangle rec = new Rectangle(0,0,130,130);
+			rec.setFill(Color.LIGHTGRAY);
+			rec.setStroke(Color.BLACK);
+			Text text = new Text("Ì‚");
+			text.setFont(Font.font("Courier", FontWeight.BOLD, FontPosture.ITALIC, 100));
+			text.setFill(Color.RED);
+			pane.getChildren().add(rec);
+			pane.getChildren().add(text);
+		}
+		
+		public void setLocation(int col, int row) {
+			super.addPiece(pane, col, row);
+			this.row = row;
+			this.col = col;
+		}
+		
+		public int getRow() {
+			return row;
+		}
+		
+		public int getCol() {
+			return col;
+		}
+		
+	}
+	
+	class Rook2 extends Cell{
+		private int isDead = 0;
+		private int row;
+		private int col;
+		StackPane pane = new StackPane();
+		
+		Rook2(){
+			Rectangle rec = new Rectangle(0,0,130,130);
+			rec.setFill(Color.LIGHTGRAY);
+			rec.setStroke(Color.BLACK);
+			Text text = new Text("Ì‚");
+			text.setFont(Font.font("Courier", FontWeight.BOLD, FontPosture.ITALIC, 100));
+			text.setFill(Color.GREEN);
+			text.setRotate(180);
+			pane.getChildren().add(rec);
+			pane.getChildren().add(text);
+		}
+		
+		public void setLocation(int col, int row) {
+			super.addPiece(pane, col, row);
+			this.row = row;
+			this.col = col;
+		}
+		
+		public int getRow() {
+			return row;
+		}
+		
+		public int getCol() {
+			return col;
+		}
+		
+	}
+	
+	class Pawn1 extends Cell{
+		private int isDead = 0;
+		private int row;
+		private int col;
+		StackPane pane = new StackPane();
+		
+		Pawn1(){
+			Rectangle rec = new Rectangle(0,0,130,130);
+			rec.setFill(Color.LIGHTGRAY);
+			rec.setStroke(Color.BLACK);
+			Text text = new Text("Ì≠");
+			text.setFont(Font.font("Courier", FontWeight.BOLD, FontPosture.ITALIC, 100));
+			text.setFill(Color.RED);
+			pane.getChildren().add(rec);
+			pane.getChildren().add(text);
+		}
+		
+		public void setLocation(int col, int row) {
+			super.addPiece(pane, col, row);
+			this.row = row;
+			this.col = col;
+		}
+		
+		public int getRow() {
+			return row;
+		}
+		
+		public int getCol() {
+			return col;
+		}
+		
+	}
+	
+	class Pawn2 extends Cell{
+		private int isDead = 0;
+		private int row;
+		private int col;
+		StackPane pane = new StackPane();
+		
+		Pawn2(){
+			Rectangle rec = new Rectangle(0,0,130,130);
+			rec.setFill(Color.LIGHTGRAY);
+			rec.setStroke(Color.BLACK);
+			Text text = new Text("Ì≠");
+			text.setFont(Font.font("Courier", FontWeight.BOLD, FontPosture.ITALIC, 100));
+			text.setFill(Color.GREEN);
+			text.setRotate(180);
+			pane.getChildren().add(rec);
+			pane.getChildren().add(text);
+		}
+		
+		public void setLocation(int col, int row) {
+			super.addPiece(pane, col, row);
+			this.row = row;
+			this.col = col;
+		}
+		
+		public int getRow() {
+			return row;
+		}
+		
+		public int getCol() {
+			return col;
+		}
+	}
+	
+	class ShowMoveable {
+		StackPane pane = new StackPane();
+		Circle circle = new Circle(20);
+		
+		ShowMoveable(){
+		}
+	}
+	
 	public static void main(String[] args) {
 		launch(args);
 	}
+	
 
 }
+

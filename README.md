@@ -39,4 +39,9 @@
 
 ![십이장기 인터페이스1](https://user-images.githubusercontent.com/102570051/184538564-d8068644-84d3-4800-a5aa-24fe923b8fa0.png)  
 + GridPane을 상속 받는 Cell class를 만들어서 기본적인 게임판 제작  
-+ BorderPane으로 대략적인 레이아웃 형성  
++ BorderPane으로 대략적인 레이아웃 형성 
+
+# 8/28 기물이동 및 이동경로 구현
+![image1](https://user-images.githubusercontent.com/102570051/187072353-3ba56c49-6340-4c2f-b42a-d0c61b72f3f6.png) 
++ 각각의 기물 class 제작
++ 기물들의 이동 구현

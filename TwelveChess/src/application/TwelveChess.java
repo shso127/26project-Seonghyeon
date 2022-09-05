@@ -8,6 +8,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
@@ -19,11 +20,15 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 public class TwelveChess extends Application{
-	
-	private boolean []whoClicked = {false,false,false,false,false,false,false,false,false,false};//ø’1,ø’2,ªÛ1,ªÛ2,∑Ë1,∑Ë2,∆˘1,∆˘2,»ƒ1,»ƒ2
-	private boolean [][]Location1 = {{false,false,false},{false,false,false},{false,true,false},{true,true,true}};//«√∑π¿ÃæÓ1¿« ∏ª¿Ã æÓµø° ¡∏¿Á«œ¥¬¡ˆ »Æ¿Œ
-	private boolean [][]Location2 = {{true,true,true},{false,true,false},{false,false,false},{false,false,false}};//«√∑π¿ÃæÓ2¿« ∏ª¿Ã æÓµø° ¡∏¿Á«œ¥¬¡ˆ »Æ¿Œ
+	//Ïôï1,Ïôï2,ÏÉÅ1,ÏÉÅ11,ÏÉÅ2,ÏÉÅ22,Î£©1,Î£©11,Î£©2,Î£©22,Ìè∞1,Ìè∞11,Ìè∞2,Ìè∞22,ÌõÑ1,ÌõÑ11,ÌõÑ2,ÌõÑ22
+	private boolean []whoClicked = {false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false};
+	private boolean [][]Location1 = {{false,false,false},{false,false,false},{false,true,false},{true,true,true}};//ÌîåÎ†àÏù¥Ïñ¥1Ïùò ÎßêÏù¥ Ïñ¥ÎîîÏóê Ï°¥Ïû¨ÌïòÎäîÏßÄ ÌôïÏù∏
+	private boolean [][]Location2 = {{true,true,true},{false,true,false},{false,false,false},{false,false,false}};//ÌîåÎ†àÏù¥Ïñ¥2Ïùò ÎßêÏù¥ Ïñ¥ÎîîÏóê Ï°¥Ïû¨ÌïòÎäîÏßÄ ÌôïÏù∏
+	private boolean []dead1 = {false,false,false,false,false,false};
+	private boolean []dead2 = {false,false,false,false,false,false};
 	private int whoseTurn = 0;
+	private int kingInOtherSide1 = 0;
+	private int kingInOtherSide2 = 0;
 	
 	Cell gameBoard = new Cell(4,3,150);
 	Cell deadSpace1 = new Cell(1,6,75);
@@ -31,11 +36,21 @@ public class TwelveChess extends Application{
 	King1 king1 = new King1();
 	King2 king2 = new King2();
 	Elephant1 elephant1 = new Elephant1();
+	Elephant1 elephant11 = new Elephant1();
 	Elephant2 elephant2 = new Elephant2();
+	Elephant2 elephant22 = new Elephant2();
 	Rook1 rook1 = new Rook1();
+	Rook1 rook11 = new Rook1();
 	Rook2 rook2 = new Rook2();
+	Rook2 rook22 = new Rook2();
 	Pawn1 pawn1 = new Pawn1();
+	Pawn1 pawn11 = new Pawn1();
 	Pawn2 pawn2 = new Pawn2();
+	Pawn2 pawn22 = new Pawn2();
+	Hoo1 hoo1 = new Hoo1();		
+	Hoo1 hoo11 = new Hoo1();
+	Hoo2 hoo2 = new Hoo2();
+	Hoo2 hoo22 = new Hoo2();
 	ShowCircle circle1 = new ShowCircle(0,0);
 	ShowCircle circle2 = new ShowCircle(1,0);
 	ShowCircle circle3 = new ShowCircle(2,0);
@@ -48,20 +63,17 @@ public class TwelveChess extends Application{
 	ShowCircle circle10 = new ShowCircle(0,3);
 	ShowCircle circle11 = new ShowCircle(1,3);
 	ShowCircle circle12 = new ShowCircle(2,3);
+	BorderPane bdPane = new BorderPane();
+	GridPane lbPane = new GridPane();
 	Text turn = new Text("Player1's turn");
 	
 	@Override
 	public void start(Stage primaryStage) {
-
-		
 		gameBoard.setAlignment(Pos.CENTER_LEFT);
-		
-		GridPane lbPane = new GridPane();
 		lbPane.setAlignment(Pos.CENTER);
 		lbPane.setPrefWidth(430);
 		lbPane.setVgap(10);
-		
-		
+			
 		Button btStart = new Button("Start the game!");
 		Button btRule = new Button("Rules");
 		Button btBack = new Button("Back");
@@ -79,33 +91,33 @@ public class TwelveChess extends Application{
 		
 		Text rtitle = new Text("RULES");
 		rtitle.setFont(Font.font("Courier", FontWeight.BOLD, FontPosture.ITALIC, 25));
-		Label rule1 = new Label("1. ∞¢ ∏ªµÈ¿∫ ∆Ø¡§«— πÊ«‚¿∏∑Œ∏∏ ¿Ãµø«“ ºˆ ¿÷¿∏∏Á ∞¢∞¢¿« ø™«“\n"
-				+ "¿∫ ¥Ÿ¿Ω∞˙ ∞∞¥Ÿ.\n"
-				+ "-¿Â(Ì‚). ¿⁄Ω≈¿« ¡¯øµ ø¿∏•¬ ø° ≥ı¿Ã¥¬ ∏ª∑Œ æ’, µ⁄øÕ ¡¬, øÏ∑Œ\n"
-				+ "  ¿Ãµø¿Ã ∞°¥…«œ¥Ÿ.\n"
-				+ "-ªÛ(ﬂ”). ¿⁄Ω≈¿« ¡¯øµ øﬁ¬ ø° ≥ı¿Ã∏Á ¥Î∞¢º± 4πÊ«‚¿∏∑Œ ¿Ãµø«“\n"
-				+ "  ºˆ ¿÷¥Ÿ.\n"
-				+ "-ø’(Ë›). ¿⁄Ω≈¿« ¡¯øµ ¡ﬂæ”ø° ¿ßƒ°«œ∏Á æ’, µ⁄, ¡¬, øÏ, ¥Î∞¢º±\n"
-				+ "  πÊ«‚±Ó¡ˆ ∏µÁ πÊ«‚¿∏∑Œ ¿Ãµø¿Ã ∞°¥…«œ¥Ÿ.\n"
-				+ "-¿⁄(Ì≠). ø’¿« æ’ø° ≥ı¿Ã∏Á ø¿∑Œ¡ˆ æ’¿∏∑Œ∏∏ ¿Ãµø«“ ºˆ ¿÷¥Ÿ.\n"
-				+ "-¿⁄(Ì≠)¥¬ ªÛ¥Î ¡¯øµø° µÈæÓ∞°∏È µ⁄¡˝æÓº≠ »ƒ(˝•)∑Œ ªÁøÎµ»¥Ÿ.\n"
-				+ "  »ƒ(˝•)¥¬ ¥Î∞¢º± µ⁄¬  πÊ«‚¿ª ¡¶ø‹«— ¿¸ πÊ«‚¿∏∑Œ ¿Ãµø«“ ºˆ\n"
-				+ "  ¿÷¥Ÿ.\n");
-		Label rule2 = new Label("2. ∞‘¿”¿Ã Ω√¿€µ«∏È º± «√∑π¿ÃæÓ∫Œ≈Õ ∏ª 1∞≥∏¶ 1ƒ≠ ¿ÃµøΩ√≈≥ ºˆ \n"
-				+ "¿÷¥Ÿ. ∏ª¿ª ¿ÃµøΩ√ƒ— ªÛ¥ÎπÊ¿« ∏ª¿ª ¿‚¿∫ ∞ÊøÏ, «ÿ¥Á ∏ª¿ª ∆˜∑Œ\n"
-				+ "∑Œ ¿‚∞‘ µ«∏Á ∆˜∑Œ∑Œ ¿‚¿∫ ∏ª¿∫ ¥Ÿ¿Ω ≈œ∫Œ≈Õ ¿⁄Ω≈¿« ∏ª∑Œ ªÁøÎ«“\n"
-				+ "ºˆ ¿÷¥Ÿ.\n");
-		Label rule3 = new Label("3. ∞‘¿” ∆«ø° ∆˜∑Œ∑Œ ¿‚¿∫ ∏ª¿ª ≥ª∑¡≥ı¥¬ «‡µøµµ ≈œ¿ª º“∏«œ¥¬\n"
-				+ "∞Õ¿Ã∏Á ¿ÃπÃ ∏ª¿Ã ≥ıø©¡¯ ∞˜¿Ã≥™ ªÛ¥Î¿« ¡¯øµø°¥¬ ∏ª¿ª ≥ª∑¡≥ı¿ª\n"
-				+ "ºˆ æ¯¥Ÿ.\n");
-		Label rule4 = new Label("4. ªÛ¥ÎπÊ¿« »ƒ(˝•)∏¶ ¿‚æ∆ ¿⁄Ω≈¿« ∏ª∑Œ ªÁøÎ«“ ∞ÊøÏø°¥¬ ¿⁄\n"
-				+ "(Ì≠)∑Œ µ⁄¡˝æÓº≠ ªÁøÎ«ÿæﬂ «—¥Ÿ.\n");
-		Label rule5 = new Label("5. ∞‘¿”¿∫ «— «√∑π¿ÃæÓ∞° ªÛ¥ÎπÊ¿« ø’(Ë›)¿ª ¿‚¿∏∏È «ÿ¥Á «√∑π¿Ã\n"
-				+ "æÓ¿« Ω¬∏Æ∑Œ ¡æ∑·µ»¥Ÿ.\n");
-		Label rule6 = new Label("6. ∏∏æ‡ ¿⁄Ω≈¿« ø’(Ë›)¿Ã ªÛ¥ÎπÊ¿« ¡¯øµø° µÈæÓ∞° ¿⁄Ω≈¿« ≈œ¿Ã\n"
-				+ "¥ŸΩ√ µπæ∆ø√ ∂ß±Ó¡ˆ «— ≈œ¿ª πˆ∆ø ∞ÊøÏ «ÿ¥Á «√∑π¿ÃæÓ¿« Ω¬∏Æ∑Œ\n"
-				+ "∞‘¿”¿Ã ¡æ∑·µ»¥Ÿ.\n");
-		Label rule7 = new Label("7. ¿⁄ºº«— ªÁ«◊¿∫ ≈∑π´¿ß≈∞∑Œ...");
+		Label rule1 = new Label("1. Í∞Å ÎßêÎì§ÏùÄ ÌäπÏ†ïÌïú Î∞©Ìñ•ÏúºÎ°úÎßå Ïù¥ÎèôÌï† Ïàò ÏûàÏúºÎ©∞ Í∞ÅÍ∞ÅÏùò Ïó≠Ìï†\n"
+				+ "ÏùÄ Îã§ÏùåÍ≥º Í∞ôÎã§.\n"
+				+ "-Ïû•(Â∞á). ÏûêÏã†Ïùò ÏßÑÏòÅ Ïò§Î•∏Ï™ΩÏóê ÎÜìÏù¥Îäî ÎßêÎ°ú Ïïû, Îí§ÏôÄ Ï¢å, Ïö∞Î°ú\n"
+				+ "  Ïù¥ÎèôÏù¥ Í∞ÄÎä•ÌïòÎã§.\n"
+				+ "-ÏÉÅ(Áõ∏). ÏûêÏã†Ïùò ÏßÑÏòÅ ÏôºÏ™ΩÏóê ÎÜìÏù¥Î©∞ ÎåÄÍ∞ÅÏÑ† 4Î∞©Ìñ•ÏúºÎ°ú Ïù¥ÎèôÌï†\n"
+				+ "  Ïàò ÏûàÎã§.\n"
+				+ "-Ïôï(Áéã). ÏûêÏã†Ïùò ÏßÑÏòÅ Ï§ëÏïôÏóê ÏúÑÏπòÌïòÎ©∞ Ïïû, Îí§, Ï¢å, Ïö∞, ÎåÄÍ∞ÅÏÑ†\n"
+				+ "  Î∞©Ìñ•ÍπåÏßÄ Î™®Îì† Î∞©Ìñ•ÏúºÎ°ú Ïù¥ÎèôÏù¥ Í∞ÄÎä•ÌïòÎã§.\n"
+				+ "-Ïûê(Â≠ê). ÏôïÏùò ÏïûÏóê ÎÜìÏù¥Î©∞ Ïò§Î°úÏßÄ ÏïûÏúºÎ°úÎßå Ïù¥ÎèôÌï† Ïàò ÏûàÎã§.\n"
+				+ "-Ïûê(Â≠ê)Îäî ÏÉÅÎåÄ ÏßÑÏòÅÏóê Îì§Ïñ¥Í∞ÄÎ©¥ Îí§ÏßëÏñ¥ÏÑú ÌõÑ(‰æØ)Î°ú ÏÇ¨Ïö©ÎêúÎã§.\n"
+				+ "  ÌõÑ(‰æØ)Îäî ÎåÄÍ∞ÅÏÑ† Îí§Ï™Ω Î∞©Ìñ•ÏùÑ Ï†úÏô∏Ìïú Ï†Ñ Î∞©Ìñ•ÏúºÎ°ú Ïù¥ÎèôÌï† Ïàò\n"
+				+ "  ÏûàÎã§.\n");
+		Label rule2 = new Label("2. Í≤åÏûÑÏù¥ ÏãúÏûëÎêòÎ©¥ ÏÑ† ÌîåÎ†àÏù¥Ïñ¥Î∂ÄÌÑ∞ Îßê 1Í∞úÎ•º 1Ïπ∏ Ïù¥ÎèôÏãúÌÇ¨ Ïàò \n"
+				+ "ÏûàÎã§. ÎßêÏùÑ Ïù¥ÎèôÏãúÏºú ÏÉÅÎåÄÎ∞©Ïùò ÎßêÏùÑ Ïû°ÏùÄ Í≤ΩÏö∞, Ìï¥Îãπ ÎßêÏùÑ Ìè¨Î°ú\n"
+				+ "Î°ú Ïû°Í≤å ÎêòÎ©∞ Ìè¨Î°úÎ°ú Ïû°ÏùÄ ÎßêÏùÄ Îã§Ïùå ÌÑ¥Î∂ÄÌÑ∞ ÏûêÏã†Ïùò ÎßêÎ°ú ÏÇ¨Ïö©Ìï†\n"
+				+ "Ïàò ÏûàÎã§.\n");
+		Label rule3 = new Label("3. Í≤åÏûÑ ÌåêÏóê Ìè¨Î°úÎ°ú Ïû°ÏùÄ ÎßêÏùÑ ÎÇ¥Î†§ÎÜìÎäî ÌñâÎèôÎèÑ ÌÑ¥ÏùÑ ÏÜåÎ™®ÌïòÎäî\n"
+				+ "Í≤ÉÏù¥Î©∞ Ïù¥ÎØ∏ ÎßêÏù¥ ÎÜìÏó¨ÏßÑ Í≥≥Ïù¥ÎÇò ÏÉÅÎåÄÏùò ÏßÑÏòÅÏóêÎäî ÎßêÏùÑ ÎÇ¥Î†§ÎÜìÏùÑ\n"
+				+ "Ïàò ÏóÜÎã§.\n");
+		Label rule4 = new Label("4. ÏÉÅÎåÄÎ∞©Ïùò ÌõÑ(‰æØ)Î•º Ïû°ÏïÑ ÏûêÏã†Ïùò ÎßêÎ°ú ÏÇ¨Ïö©Ìï† Í≤ΩÏö∞ÏóêÎäî Ïûê\n"
+				+ "(Â≠ê)Î°ú Îí§ÏßëÏñ¥ÏÑú ÏÇ¨Ïö©Ìï¥Ïïº ÌïúÎã§.\n");
+		Label rule5 = new Label("5. Í≤åÏûÑÏùÄ Ìïú ÌîåÎ†àÏù¥Ïñ¥Í∞Ä ÏÉÅÎåÄÎ∞©Ïùò Ïôï(Áéã)ÏùÑ Ïû°ÏúºÎ©¥ Ìï¥Îãπ ÌîåÎ†àÏù¥\n"
+				+ "Ïñ¥Ïùò ÏäπÎ¶¨Î°ú Ï¢ÖÎ£åÎêúÎã§.\n");
+		Label rule6 = new Label("6. ÎßåÏïΩ ÏûêÏã†Ïùò Ïôï(Áéã)Ïù¥ ÏÉÅÎåÄÎ∞©Ïùò ÏßÑÏòÅÏóê Îì§Ïñ¥Í∞Ä ÏûêÏã†Ïùò ÌÑ¥Ïù¥\n"
+				+ "Îã§Ïãú ÎèåÏïÑÏò¨ ÎïåÍπåÏßÄ Ìïú ÌÑ¥ÏùÑ Î≤ÑÌã∏ Í≤ΩÏö∞ Ìï¥Îãπ ÌîåÎ†àÏù¥Ïñ¥Ïùò ÏäπÎ¶¨Î°ú\n"
+				+ "Í≤åÏûÑÏù¥ Ï¢ÖÎ£åÎêúÎã§.\n");
+		Label rule7 = new Label("7. ÏûêÏÑ∏Ìïú ÏÇ¨Ìï≠ÏùÄ ÌÇπÎ¨¥ÏúÑÌÇ§Î°ú...");
 		
 		
 		
@@ -136,20 +148,28 @@ public class TwelveChess extends Application{
 			lbPane.getChildren().removeAll(btStart,btRule);
 			
 			king1.setLocation(1, 3);
+			king1.onBoard=true;
 			gameBoard.getChildren().add(king1.pane);
 			king2.setLocation(1, 0);
+			king2.onBoard=true;
 			gameBoard.getChildren().add(king2.pane);
 			elephant1.setLocation(0, 3);
+			elephant1.onBoard=true;
 			gameBoard.getChildren().add(elephant1.pane);
 			elephant2.setLocation(2, 0);
+			elephant2.onBoard=true;
 			gameBoard.getChildren().add(elephant2.pane);
 			rook1.setLocation(2, 3);
+			rook1.onBoard=true;
 			gameBoard.getChildren().add(rook1.pane);
 			rook2.setLocation(0, 0);
+			rook2.onBoard=true;
 			gameBoard.getChildren().add(rook2.pane);
 			pawn1.setLocation(1, 2);
+			pawn1.onBoard=true;
 			gameBoard.getChildren().add(pawn1.pane);
 			pawn2.setLocation(1, 1);
+			pawn2.onBoard=true;
 			gameBoard.getChildren().add(pawn2.pane);
 			
 		}
@@ -162,106 +182,460 @@ public class TwelveChess extends Application{
 			}
 			else {
 				removeCircle();
-				for(int i=0;i<8;i++) {
-				whoClicked[i] = false;
+				for(int i=0;i<18;i++) {
+					whoClicked[i] = false;
 				}
 			}
-			});
+		});
 		
 		king2.pane.setOnMouseClicked(e->{
 			if(!whoClicked[1]&& whoseTurn%2==1) {
 				whoClicked[1] = true;
 				moveable();
-				}
+			}
 			else {
 				removeCircle();
-				for(int i=0;i<8;i++) {
+				for(int i=0;i<18;i++) {
 					whoClicked[i] = false;
-					}
 				}
+			}
 		});
 		
 		elephant1.pane.setOnMouseClicked(e->{
-			if(!whoClicked[2]&& whoseTurn%2==0) {
-				whoClicked[2] = true;
-				moveable();
+			if(!elephant1.isDead) {
+				if(!whoClicked[2]&& whoseTurn%2==0) {
+					whoClicked[2] = true;
+					moveable();
 				}
-			else {
-				removeCircle();
-				for(int i=0;i<8;i++) {
-					whoClicked[i] = false;
+				else {
+					removeCircle();
+					for(int i=0;i<18;i++) {
+						whoClicked[i] = false;
 					}
 				}
+			}
+			else {
+				if(!whoClicked[2]&& whoseTurn%2==0) {
+					whoClicked[2] = true;
+					emptyBoard();
+				}
+				else {
+					removeCircle();
+					for(int i=0;i<18;i++) {
+						whoClicked[i] = false;
+					}
+				}
+			}
+		});
+		
+		elephant11.pane.setOnMouseClicked(e->{
+			if(!elephant11.isDead) {
+				if(!whoClicked[3]&& whoseTurn%2==0) {
+					whoClicked[3] = true;
+					moveable();
+				}
+				else {
+					removeCircle();
+					for(int i=0;i<18;i++) {
+						whoClicked[i] = false;
+					}
+				}
+			}
+			else {
+				if(!whoClicked[3]&& whoseTurn%2==0) {
+					whoClicked[3] = true;
+					emptyBoard();
+				}
+				else {
+					removeCircle();
+					for(int i=0;i<18;i++) {
+						whoClicked[i] = false;
+					}
+				}
+			}
 		});
 		
 		elephant2.pane.setOnMouseClicked(e->{
-			if(!whoClicked[3]&& whoseTurn%2==1) {
-				whoClicked[3] = true;
-				moveable();
+			if(!elephant2.isDead) {
+				if(!whoClicked[4]&& whoseTurn%2==1) {
+					whoClicked[4] = true;
+					moveable();
 				}
-			else {
-				removeCircle();
-				for(int i=0;i<8;i++) {
-					whoClicked[i] = false;
+				else {
+					removeCircle();
+					for(int i=0;i<18;i++) {
+						whoClicked[i] = false;
 					}
 				}
+			}
+			else {
+				if(!whoClicked[4]&& whoseTurn%2==1) {
+					whoClicked[4] = true;
+					emptyBoard();
+				}
+				else {
+					removeCircle();
+					for(int i=0;i<18;i++) {
+						whoClicked[i] = false;
+					}
+				}
+			}
+		});
+		
+		elephant22.pane.setOnMouseClicked(e->{
+			if(!elephant22.isDead) {
+				if(!whoClicked[5]&& whoseTurn%2==1) {
+					whoClicked[5] = true;
+					moveable();
+				}
+				else {
+					removeCircle();
+					for(int i=0;i<18;i++) {
+						whoClicked[i] = false;
+					}
+				}
+			}
+			else {
+				if(!whoClicked[5]&& whoseTurn%2==1) {
+					whoClicked[5] = true;
+					emptyBoard();
+				}
+				else {
+					removeCircle();
+					for(int i=0;i<18;i++) {
+						whoClicked[i] = false;
+					}
+				}
+			}
 		});
 		
 		rook1.pane.setOnMouseClicked(e->{
-			if(!whoClicked[4]&& whoseTurn%2==0) {
-				whoClicked[4] = true;
-				moveable();
+			if(!rook1.isDead) {
+				if(!whoClicked[6]&& whoseTurn%2==0) {
+					whoClicked[6] = true;
+					moveable();
 				}
-			else {
-				removeCircle();
-				for(int i=0;i<8;i++) {
-					whoClicked[i] = false;
+				else {
+					removeCircle();
+					for(int i=0;i<18;i++) {
+						whoClicked[i] = false;
 					}
 				}
+			}
+			else {
+				if(!whoClicked[6]&& whoseTurn%2==0) {
+					whoClicked[6] = true;
+					emptyBoard();
+				}
+				else {
+					removeCircle();
+					for(int i=0;i<18;i++) {
+						whoClicked[i] = false;
+					}
+				}
+			}
+		});
+		
+		rook11.pane.setOnMouseClicked(e->{
+			if(!rook11.isDead) {
+				if(!whoClicked[7]&& whoseTurn%2==0) {
+					whoClicked[7] = true;
+					moveable();
+				}
+				else {
+					removeCircle();
+					for(int i=0;i<18;i++) {
+						whoClicked[i] = false;
+					}
+				}
+			}
+			else {
+				if(!whoClicked[7]&& whoseTurn%2==0) {
+					whoClicked[7] = true;
+					emptyBoard();
+				}
+				else {
+					removeCircle();
+					for(int i=0;i<18;i++) {
+						whoClicked[i] = false;
+					}
+				}
+			}
 		});
 		
 		rook2.pane.setOnMouseClicked(e->{
-			if(!whoClicked[5]&& whoseTurn%2==1) {
-				whoClicked[5] = true;
-				moveable();
+			if(!rook2.isDead) {
+				if(!whoClicked[8]&& whoseTurn%2==1) {
+					whoClicked[8] = true;
+					moveable();
 				}
-			else {
-				removeCircle();
-				for(int i=0;i<8;i++) {
-					whoClicked[i] = false;
+				else {
+					removeCircle();
+					for(int i=0;i<18;i++) {
+						whoClicked[i] = false;
 					}
 				}
+			}
+			else {
+				if(!whoClicked[8]&& whoseTurn%2==1) {
+					whoClicked[8] = true;
+					emptyBoard();
+				}
+				else {
+					removeCircle();
+					for(int i=0;i<18;i++) {
+						whoClicked[i] = false;
+					}
+				}
+			}
+		});
+		
+		rook22.pane.setOnMouseClicked(e->{
+			if(!rook22.isDead) {
+				if(!whoClicked[9]&& whoseTurn%2==1) {
+					whoClicked[9] = true;
+					moveable();
+				}
+				else {
+					removeCircle();
+					for(int i=0;i<18;i++) {
+						whoClicked[i] = false;
+					}
+				}
+			}
+			else {
+				if(!whoClicked[9]&& whoseTurn%2==1) {
+					whoClicked[9] = true;
+					emptyBoard();
+				}
+				else {
+					removeCircle();
+					for(int i=0;i<18;i++) {
+						whoClicked[i] = false;
+					}
+				}
+			}
 		});
 		
 		pawn1.pane.setOnMouseClicked(e->{
-			if(!whoClicked[6]&& whoseTurn%2==0) {
-				whoClicked[6] = true;
-				moveable();
+			if(!pawn1.isDead) {
+				if(!whoClicked[10]&& whoseTurn%2==0) {
+					whoClicked[10] = true;
+					moveable();
 				}
-			else {
-				removeCircle();
-				for(int i=0;i<8;i++) {
-					whoClicked[i] = false;
+				else {
+					removeCircle();
+					for(int i=0;i<18;i++) {
+						whoClicked[i] = false;
 					}
 				}
+			}
+			else {
+				if(!whoClicked[10]&& whoseTurn%2==0) {
+					whoClicked[10] = true;
+					emptyBoard();
+				}
+				else {
+					removeCircle();
+					for(int i=0;i<18;i++) {
+						whoClicked[i] = false;
+					}
+				}
+			}
+		});
+		
+		pawn11.pane.setOnMouseClicked(e->{
+			if(!pawn11.isDead) {
+				if(!whoClicked[11]&& whoseTurn%2==0) {
+					whoClicked[11] = true;
+					moveable();
+				}
+				else {
+					removeCircle();
+					for(int i=0;i<18;i++) {
+						whoClicked[i] = false;
+					}
+				}
+			}
+			else {
+				if(!whoClicked[11]&& whoseTurn%2==0) {
+					whoClicked[11] = true;
+					emptyBoard();
+				}
+				else {
+					removeCircle();
+					for(int i=0;i<18;i++) {
+						whoClicked[i] = false;
+					}
+				}
+			}
 		});
 		
 		pawn2.pane.setOnMouseClicked(e->{
-			if(!whoClicked[7]&& whoseTurn%2==1) {
-				whoClicked[7] = true;
-				moveable();
+			if(!pawn2.isDead) {
+				if(!whoClicked[12]&& whoseTurn%2==1) {
+					whoClicked[12] = true;
+					moveable();
 				}
-			else {
-				removeCircle();
-				for(int i=0;i<8;i++) {
-					whoClicked[i] = false;
+				else {
+					removeCircle();
+					for(int i=0;i<18;i++) {
+						whoClicked[i] = false;
 					}
 				}
+			}
+			else {
+				if(!whoClicked[12]&& whoseTurn%2==1) {
+					whoClicked[12] = true;
+					emptyBoard();
+				}
+				else {
+					removeCircle();
+					for(int i=0;i<18;i++) {
+						whoClicked[i] = false;
+					}
+				}
+			}
+		});
+		
+		pawn22.pane.setOnMouseClicked(e->{
+			if(!pawn22.isDead) {
+				if(!whoClicked[13]&& whoseTurn%2==1) {
+					whoClicked[13] = true;
+					moveable();
+				}
+				else {
+					removeCircle();
+					for(int i=0;i<18;i++) {
+						whoClicked[i] = false;
+					}
+				}
+			}
+			else {
+				if(!whoClicked[13]&& whoseTurn%2==1) {
+					whoClicked[13] = true;
+					emptyBoard();
+				}
+				else {
+					removeCircle();
+					for(int i=0;i<18;i++) {
+						whoClicked[i] = false;
+					}
+				}
+			}
+		});
+		
+		hoo1.pane.setOnMouseClicked(e->{
+			if(!hoo1.isDead) {
+				if(!whoClicked[14]&& whoseTurn%2==0) {
+					whoClicked[14] = true;
+					moveable();
+				}
+				else {
+					removeCircle();
+					for(int i=0;i<18;i++) {
+						whoClicked[i] = false;
+					}
+				}
+			}
+			else {
+				if(!whoClicked[14]&& whoseTurn%2==0) {
+					whoClicked[14] = true;
+					emptyBoard();
+				}
+				else {
+					removeCircle();
+					for(int i=0;i<18;i++) {
+						whoClicked[i] = false;
+					}
+				}
+			}
+		});
+		
+		hoo11.pane.setOnMouseClicked(e->{
+			if(!hoo11.isDead) {
+				if(!whoClicked[15]&& whoseTurn%2==0) {
+					whoClicked[15] = true;
+					moveable();
+				}
+				else {
+					removeCircle();
+					for(int i=0;i<18;i++) {
+						whoClicked[i] = false;
+					}
+				}
+			}
+			else {
+				if(!whoClicked[15]&& whoseTurn%2==0) {
+					whoClicked[15] = true;
+					emptyBoard();
+				}
+				else {
+					removeCircle();
+					for(int i=0;i<18;i++) {
+						whoClicked[i] = false;
+					}
+				}
+			}
+		});
+		
+		hoo2.pane.setOnMouseClicked(e->{
+			if(!hoo2.isDead) {
+				if(!whoClicked[16]&& whoseTurn%2==1) {
+					whoClicked[16] = true;
+					moveable();
+				}
+				else {
+					removeCircle();
+					for(int i=0;i<18;i++) {
+						whoClicked[i] = false;
+					}
+				}
+			}
+			else {
+				if(!whoClicked[16]&& whoseTurn%2==1) {
+					whoClicked[16] = true;
+					emptyBoard();
+				}
+				else {
+					removeCircle();
+					for(int i=0;i<18;i++) {
+						whoClicked[i] = false;
+					}
+				}
+			}
+		});
+		
+		hoo22.pane.setOnMouseClicked(e->{
+			if(!hoo22.isDead) {
+				if(!whoClicked[17]&& whoseTurn%2==1) {
+					whoClicked[17] = true;
+					moveable();
+				}
+				else {
+					removeCircle();
+					for(int i=0;i<18;i++) {
+						whoClicked[i] = false;
+					}
+				}
+			}
+			else {
+				if(!whoClicked[17]&& whoseTurn%2==1) {
+					whoClicked[17] = true;
+					emptyBoard();
+				}
+				else {
+					removeCircle();
+					for(int i=0;i<18;i++) {
+						whoClicked[i] = false;
+					}
+				}
+			}
 		});
 		
 		circle1.pane.setOnMouseClicked(e->{
 			circleClicked(findWhoClicked(),0);
-			for(int i=0;i<8;i++) {
+			for(int i=0;i<18;i++) {
 				whoClicked[i] = false;
 				}
 			whoseTurn++;
@@ -270,7 +644,7 @@ public class TwelveChess extends Application{
 		
 		circle2.pane.setOnMouseClicked(e->{
 			circleClicked(findWhoClicked(),1);
-			for(int i=0;i<8;i++) {
+			for(int i=0;i<18;i++) {
 				whoClicked[i] = false;
 				}
 			whoseTurn++;
@@ -279,7 +653,7 @@ public class TwelveChess extends Application{
 		
 		circle3.pane.setOnMouseClicked(e->{
 			circleClicked(findWhoClicked(),2);
-			for(int i=0;i<8;i++) {
+			for(int i=0;i<18;i++) {
 				whoClicked[i] = false;
 				}
 			whoseTurn++;
@@ -288,7 +662,7 @@ public class TwelveChess extends Application{
 		
 		circle4.pane.setOnMouseClicked(e->{
 			circleClicked(findWhoClicked(),3);
-			for(int i=0;i<8;i++) {
+			for(int i=0;i<18;i++) {
 				whoClicked[i] = false;
 				}
 			whoseTurn++;
@@ -297,7 +671,7 @@ public class TwelveChess extends Application{
 		
 		circle5.pane.setOnMouseClicked(e->{
 			circleClicked(findWhoClicked(),4);
-			for(int i=0;i<8;i++) {
+			for(int i=0;i<18;i++) {
 				whoClicked[i] = false;
 				}
 			whoseTurn++;
@@ -306,7 +680,7 @@ public class TwelveChess extends Application{
 		
 		circle6.pane.setOnMouseClicked(e->{
 			circleClicked(findWhoClicked(),5);
-			for(int i=0;i<8;i++) {
+			for(int i=0;i<18;i++) {
 				whoClicked[i] = false;
 				}
 			whoseTurn++;
@@ -315,7 +689,7 @@ public class TwelveChess extends Application{
 		
 		circle7.pane.setOnMouseClicked(e->{
 			circleClicked(findWhoClicked(),6);
-			for(int i=0;i<8;i++) {
+			for(int i=0;i<18;i++) {
 				whoClicked[i] = false;
 				}
 			whoseTurn++;
@@ -324,7 +698,7 @@ public class TwelveChess extends Application{
 		
 		circle8.pane.setOnMouseClicked(e->{
 			circleClicked(findWhoClicked(),7);
-			for(int i=0;i<8;i++) {
+			for(int i=0;i<18;i++) {
 				whoClicked[i] = false;
 				}
 			whoseTurn++;
@@ -333,7 +707,7 @@ public class TwelveChess extends Application{
 		
 		circle9.pane.setOnMouseClicked(e->{
 			circleClicked(findWhoClicked(),8);
-			for(int i=0;i<8;i++) {
+			for(int i=0;i<18;i++) {
 				whoClicked[i] = false;
 				}
 			whoseTurn++;
@@ -342,7 +716,7 @@ public class TwelveChess extends Application{
 		
 		circle10.pane.setOnMouseClicked(e->{
 			circleClicked(findWhoClicked(),9);
-			for(int i=0;i<8;i++) {
+			for(int i=0;i<18;i++) {
 				whoClicked[i] = false;
 				}
 			whoseTurn++;
@@ -351,7 +725,7 @@ public class TwelveChess extends Application{
 		
 		circle11.pane.setOnMouseClicked(e->{
 			circleClicked(findWhoClicked(),10);
-			for(int i=0;i<8;i++) {
+			for(int i=0;i<18;i++) {
 				whoClicked[i] = false;
 				}
 			whoseTurn++;
@@ -360,14 +734,12 @@ public class TwelveChess extends Application{
 		
 		circle12.pane.setOnMouseClicked(e->{
 			circleClicked(findWhoClicked(),11);
-			for(int i=0;i<8;i++) {
+			for(int i=0;i<18;i++) {
 				whoClicked[i] = false;
 				}
 			whoseTurn++;
 			setText();
 		});
-		
-		BorderPane bdPane = new BorderPane();
 		bdPane.setPadding(new Insets(15,15,15,15));
 		bdPane.setCenter(gameBoard);
 		bdPane.setTop(deadSpace2);
@@ -376,7 +748,7 @@ public class TwelveChess extends Application{
 		bdPane.setStyle("-fx-background-color: rgb(255,223,128)");
 		
 		Scene scene = new Scene(bdPane,900,880);
-		primaryStage.setTitle("Ω ¿Ã¿Â±‚");
+		primaryStage.setTitle("Ïã≠Ïù¥Ïû•Í∏∞");
 		primaryStage.setScene(scene);
 		primaryStage.setResizable(false);
 		primaryStage.show();
@@ -440,17 +812,17 @@ public class TwelveChess extends Application{
 				circle9.pane,circle10.pane,circle11.pane,circle12.pane);
 	}
 	
-	//æÓ∂≤ ±‚π∞¿Ã ≈¨∏Ø«ﬂ¥¬¡ˆ »Æ¿Œ
+	//Ïñ¥Îñ§ Í∏∞Î¨ºÏù¥ ÌÅ¥Î¶≠ÌñàÎäîÏßÄ ÌôïÏù∏
 	public int findWhoClicked() {
 		int num = 0;
-		for(int i=0;i<10;i++) {
+		for(int i=0;i<18;i++) {
 			if(whoClicked[i])
 				num=i;
 		}
 		return num;
 	}
 	
-	//ø¯¿ª ¥≠∑∂¿ª ∂ß øÚ¡˜¿Ã¥¬ «‘ºˆ
+	//ÏõêÏùÑ ÎàåÎ†ÄÏùÑ Îïå ÏõÄÏßÅÏù¥Îäî Ìï®Ïàò
 	public void circleClicked(int num1, int num2) {
 		switch(num1) {
 		case 0:
@@ -459,6 +831,9 @@ public class TwelveChess extends Application{
 			removeCircle();
 			gameBoard.getChildren().remove(king1.pane);
 			king1.setLocation(num2%3, num2/3);
+			checkKing();
+			checkDie();
+			isWin();
 			gameBoard.getChildren().add(king1.pane);
 			break;
 		case 1:
@@ -467,73 +842,328 @@ public class TwelveChess extends Application{
 			removeCircle();
 			gameBoard.getChildren().remove(king2.pane);
 			king2.setLocation(num2%3, num2/3);
+			checkKing();
+			checkDie();
+			isWin();
 			gameBoard.getChildren().add(king2.pane);
 			break;
 		case 2:
-			Location1[elephant1.row][elephant1.col]=false;
+			if(elephant1.isDead) {
+				elephant1.isDead=false;
+				dead1[elephant1.col]=false;
+				elephant1.onBoard=true;
+				elephant1.setSize(elephant1.isDead);
+			}
+			else {
+				Location1[elephant1.row][elephant1.col]=false;
+			}
 			Location1[num2/3][num2%3]=true;
 			removeCircle();
 			gameBoard.getChildren().remove(elephant1.pane);
 			elephant1.setLocation(num2%3, num2/3);
+			checkKing();
+			checkDie();
+			isWin();
 			gameBoard.getChildren().add(elephant1.pane);
 			break;
 		case 3:
-			Location2[elephant2.row][elephant2.col]=false;
+			if(elephant11.isDead) {
+				elephant11.isDead=false;
+				dead1[elephant11.col]=false;
+				elephant11.onBoard=true;
+				elephant11.setSize(elephant11.isDead);
+			}
+			else {
+				Location1[elephant11.row][elephant11.col]=false;
+			}
+			Location1[num2/3][num2%3]=true;
+			removeCircle();
+			gameBoard.getChildren().remove(elephant11.pane);
+			elephant11.setLocation(num2%3, num2/3);
+			checkKing();
+			checkDie();
+			isWin();
+			gameBoard.getChildren().add(elephant11.pane);
+			break;
+		case 4:
+			if(elephant2.isDead) {
+				elephant2.isDead=false;
+				dead2[elephant2.col]=false;
+				elephant2.onBoard=true;
+				elephant2.setSize(elephant2.isDead);
+			}
+			else {
+				Location2[elephant2.row][elephant2.col]=false;
+			}
 			Location2[num2/3][num2%3]=true;
 			removeCircle();
 			gameBoard.getChildren().remove(elephant2.pane);
 			elephant2.setLocation(num2%3, num2/3);
+			checkKing();
+			checkDie();
+			isWin();
 			gameBoard.getChildren().add(elephant2.pane);
 			break;
-		case 4:
-			Location1[rook1.row][rook1.col]=false;
+		case 5:
+			if(elephant22.isDead) {
+				elephant22.isDead=false;
+				dead2[elephant22.col]=false;
+				elephant22.onBoard=true;
+				elephant22.setSize(elephant22.isDead);
+			}
+			else {
+				Location2[elephant22.row][elephant22.col]=false;
+			}
+			Location2[num2/3][num2%3]=true;
+			removeCircle();
+			gameBoard.getChildren().remove(elephant22.pane);
+			elephant22.setLocation(num2%3, num2/3);
+			checkKing();
+			checkDie();
+			isWin();
+			gameBoard.getChildren().add(elephant22.pane);
+			break;
+		case 6:
+			if(rook1.isDead) {
+				rook1.isDead=false;
+				dead1[rook1.col]=false;
+				rook1.onBoard=true;
+				rook1.setSize(rook1.isDead);
+			}
+			else {
+				Location1[rook1.row][rook1.col]=false;
+			}
 			Location1[num2/3][num2%3]=true;
 			removeCircle();
 			gameBoard.getChildren().remove(rook1.pane);
 			rook1.setLocation(num2%3, num2/3);
+			checkKing();
+			checkDie();
+			isWin();
 			gameBoard.getChildren().add(rook1.pane);
 			break;
-		case 5:
-			Location2[rook2.row][rook2.col]=false;
+		case 7:
+			if(rook11.isDead) {
+				rook11.isDead=false;
+				dead1[rook11.col]=false;
+				rook11.onBoard=true;
+				rook11.setSize(rook11.isDead);
+			}
+			else {
+				Location1[rook11.row][rook11.col]=false;
+			}
+			Location1[num2/3][num2%3]=true;
+			removeCircle();
+			gameBoard.getChildren().remove(rook11.pane);
+			rook11.setLocation(num2%3, num2/3);
+			checkKing();
+			checkDie();
+			isWin();
+			gameBoard.getChildren().add(rook11.pane);
+			break;
+		case 8:
+			if(rook2.isDead) {
+				rook2.isDead=false;
+				dead2[rook2.col]=false;
+				rook2.onBoard=true;
+				rook2.setSize(rook2.isDead);
+			}
+			else {
+				Location2[rook2.row][rook2.col]=false;
+			}
 			Location2[num2/3][num2%3]=true;
 			removeCircle();
 			gameBoard.getChildren().remove(rook2.pane);
 			rook2.setLocation(num2%3, num2/3);
+			checkKing();
+			checkDie();
+			isWin();
 			gameBoard.getChildren().add(rook2.pane);
 			break;
-		case 6:
-			Location1[pawn1.row][pawn1.col]=false;
+		case 9:
+			if(rook22.isDead) {
+				rook22.isDead=false;
+				dead2[rook22.col]=false;
+				rook22.onBoard=true;
+				rook22.setSize(rook22.isDead);
+			}
+			else {
+				Location2[rook22.row][rook22.col]=false;
+			}
+			Location2[num2/3][num2%3]=true;
+			removeCircle();
+			gameBoard.getChildren().remove(rook22.pane);
+			rook22.setLocation(num2%3, num2/3);
+			checkKing();
+			checkDie();
+			isWin();
+			gameBoard.getChildren().add(rook22.pane);
+			break;
+		case 10:
+			if(pawn1.isDead) {
+				pawn1.isDead=false;
+				dead1[pawn1.col]=false;
+				pawn1.onBoard=true;
+				pawn1.setSize(pawn1.isDead);
+			}
+			else {
+				Location1[pawn1.row][pawn1.col]=false;
+			}
 			Location1[num2/3][num2%3]=true;
 			removeCircle();
 			gameBoard.getChildren().remove(pawn1.pane);
+			checkKing();
+			checkDie();
+			isWin();
 			pawn1.setLocation(num2%3, num2/3);
-			gameBoard.getChildren().add(pawn1.pane);
+			if(pawn1.row!=0) {
+				gameBoard.getChildren().add(pawn1.pane);
+			}
+			else {
+				pawn1.onBoard=false;
+				hoo1.onBoard=true;
+				hoo1.setLocation(num2%3, num2/3);
+				gameBoard.getChildren().add(hoo1.pane);
+			}
 			break;
-		case 7:
-			Location2[pawn2.row][pawn2.col]=false;
+		case 11:
+			if(pawn11.isDead) {
+				pawn11.isDead=false;
+				dead1[pawn11.col]=false;
+				pawn11.onBoard=true;
+				pawn11.setSize(pawn11.isDead);
+			}
+			else {
+				Location1[pawn11.row][pawn11.col]=false;
+			}
+			Location1[num2/3][num2%3]=true;
+			removeCircle();
+			gameBoard.getChildren().remove(pawn11.pane);
+			checkKing();
+			checkDie();
+			isWin();
+			pawn11.setLocation(num2%3, num2/3);
+			if(pawn11.row!=0) {
+				gameBoard.getChildren().add(pawn11.pane);
+			}
+			else {
+				pawn11.onBoard=false;
+				hoo11.onBoard=true;
+				hoo11.setLocation(num2%3, num2/3);
+				gameBoard.getChildren().add(hoo11.pane);
+			}
+			break;
+		case 12:
+			if(pawn2.isDead) {
+				pawn2.isDead=false;
+				dead2[pawn2.col]=false;
+				pawn2.onBoard=true;
+				pawn2.setSize(pawn2.isDead);
+			}
+			else {
+				Location2[pawn2.row][pawn2.col]=false;
+			}
 			Location2[num2/3][num2%3]=true;
 			removeCircle();
 			gameBoard.getChildren().remove(pawn2.pane);
+			checkKing();
+			checkDie();
+			isWin();
 			pawn2.setLocation(num2%3, num2/3);
-			gameBoard.getChildren().add(pawn2.pane);
+			if(pawn2.row!=3) {
+				gameBoard.getChildren().add(pawn2.pane);
+			}
+			else {
+				pawn2.onBoard=false;
+				hoo2.onBoard=true;
+				hoo2.setLocation(num2%3, num2/3);
+				gameBoard.getChildren().add(hoo2.pane);
+			}
 			break;
-		case 8:
+		case 13:
+			if(pawn22.isDead) {
+				pawn22.isDead=false;
+				dead2[pawn22.col]=false;
+				pawn22.onBoard=true;
+				pawn22.setSize(pawn22.isDead);
+			}
+			else {
+				Location2[pawn22.row][pawn22.col]=false;
+			}
+			Location2[num2/3][num2%3]=true;
+			removeCircle();
+			gameBoard.getChildren().remove(pawn22.pane);
+			checkKing();
+			checkDie();
+			isWin();
+			pawn22.setLocation(num2%3, num2/3);
+			if(pawn22.row!=3) {
+				gameBoard.getChildren().add(pawn22.pane);
+			}
+			else {
+				pawn22.onBoard=false;
+				hoo22.onBoard=true;
+				hoo22.setLocation(num2%3, num2/3);
+				gameBoard.getChildren().add(hoo22.pane);
+			}
 			break;
-		case 9:
+		case 14:
+			Location1[hoo1.row][hoo1.col]=false;
+			Location1[num2/3][num2%3]=true;
+			removeCircle();
+			gameBoard.getChildren().remove(hoo1.pane);
+			hoo1.setLocation(num2%3, num2/3);
+			checkKing();
+			checkDie();
+			isWin();
+			gameBoard.getChildren().add(hoo1.pane);
+			break;
+		case 15:
+			Location1[hoo11.row][hoo11.col]=false;
+			Location1[num2/3][num2%3]=true;
+			removeCircle();
+			gameBoard.getChildren().remove(hoo11.pane);
+			hoo11.setLocation(num2%3, num2/3);
+			checkKing();
+			checkDie();
+			isWin();
+			gameBoard.getChildren().add(hoo11.pane);
+			break;
+		case 16:
+			Location2[hoo2.row][hoo2.col]=false;
+			Location2[num2/3][num2%3]=true;
+			removeCircle();
+			gameBoard.getChildren().remove(hoo2.pane);
+			hoo2.setLocation(num2%3, num2/3);
+			checkKing();
+			checkDie();
+			isWin();
+			gameBoard.getChildren().add(hoo2.pane);
+			break;
+		case 17:
+			Location2[hoo22.row][hoo22.col]=false;
+			Location2[num2/3][num2%3]=true;
+			removeCircle();
+			gameBoard.getChildren().remove(hoo22.pane);
+			hoo22.setLocation(num2%3, num2/3);
+			checkKing();
+			checkDie();
+			isWin();
+			gameBoard.getChildren().add(hoo22.pane);
 			break;
 		}
 	}
 	
-	//øÚ¡˜¿œºˆ ¿÷¥¬ ¿ßƒ° «•Ω√«œ¥¬ «‘ºˆ
+	//ÏõÄÏßÅÏùºÏàò ÏûàÎäî ÏúÑÏπò ÌëúÏãúÌïòÎäî Ìï®Ïàò
 	public void moveable() {
 		int num = 1;
-		for(int i=0;i<8;i++) {
+		for(int i=0;i<18;i++) {
 			if(whoClicked[i])
 				num=i;
 		}
 		
 		switch(num) {
-		//«√∑π¿ÃæÓ1 ø’
+		//ÌîåÎ†àÏù¥Ïñ¥1 Ïôï
 		case 0:
 			if((king1.col==0)&&(king1.row==3)) {
 				if(!Location1[2][0])
@@ -635,7 +1265,7 @@ public class TwelveChess extends Application{
 					addCircle(3*(king1.row-1)+king1.col+2);
 			}
 			break;
-		//«√∑π¿ÃæÓ2 ø’
+		//ÌîåÎ†àÏù¥Ïñ¥2 Ïôï
 		case 1:
 			if((king2.col==0)&&(king2.row==3)) {
 				if(!Location2[2][0])
@@ -737,7 +1367,7 @@ public class TwelveChess extends Application{
 					addCircle(3*(king2.row-1)+king2.col+2);
 			}
 			break;
-		//«√∑π¿ÃæÓ1 ªÛ
+		//ÌîåÎ†àÏù¥Ïñ¥1 ÏÉÅ
 		case 2:
 			if(((elephant1.col==0)||(elephant1.col==2))&&(elephant1.row==0)) {
 				if(!Location1[1][1])
@@ -782,8 +1412,52 @@ public class TwelveChess extends Application{
 					addCircle(3*(elephant1.row+1)+elephant1.col+2);
 			}
 			break;
-		//«√∑π¿ÃæÓ2 ªÛ
 		case 3:
+			if(((elephant11.col==0)||(elephant11.col==2))&&(elephant11.row==0)) {
+				if(!Location1[1][1])
+					addCircle(5);
+			}
+			else if((elephant11.col==1)&&(elephant11.row==0)) {
+				if(!Location1[1][0])
+					addCircle(4);
+				if(!Location1[1][2])
+					addCircle(6);
+			}
+			else if(((elephant11.col==0)||(elephant11.col==2))&&(elephant11.row==3)) {
+				if(!Location1[2][1])
+					addCircle(8);
+			}
+			else if((elephant11.col==1)&&(elephant11.row==3)) {
+				if(!Location1[2][0])
+					addCircle(7);
+				if(!Location1[2][2])
+					addCircle(9);
+			}
+			else if((elephant11.col==0)&&(elephant11.row>0)&&(elephant11.row<3)) {
+				if(!Location1[elephant11.row-1][elephant11.col+1])
+					addCircle(3*(elephant11.row-1)+elephant11.col+2);
+				if(!Location1[elephant11.row+1][elephant11.col+1])
+					addCircle(3*(elephant11.row+1)+elephant11.col+2);
+			}
+			else if((elephant11.col==2)&&(elephant11.row>0)&&(elephant11.row<3)) {
+				if(!Location1[elephant11.row-1][elephant11.col-1])
+					addCircle(3*(elephant11.row-1)+elephant11.col);
+				if(!Location1[elephant11.row+1][elephant11.col-1])
+					addCircle(3*(elephant11.row+1)+elephant11.col);
+			}
+			else {
+				if(!Location1[elephant11.row-1][elephant11.col-1])
+					addCircle(3*(elephant11.row-1)+elephant11.col);
+				if(!Location1[elephant11.row+1][elephant11.col-1])
+					addCircle(3*(elephant11.row+1)+elephant11.col);
+				if(!Location1[elephant11.row-1][elephant11.col+1])
+					addCircle(3*(elephant11.row-1)+elephant11.col+2);
+				if(!Location1[elephant11.row+1][elephant11.col+1])
+					addCircle(3*(elephant11.row+1)+elephant11.col+2);
+			}
+			break;
+		//ÌîåÎ†àÏù¥Ïñ¥2 ÏÉÅ
+		case 4:
 			if(((elephant2.col==0)||(elephant2.col==2))&&(elephant2.row==0)) {
 				if(!Location2[1][1])
 					addCircle(5);
@@ -827,8 +1501,52 @@ public class TwelveChess extends Application{
 					addCircle(3*(elephant2.row+1)+elephant2.col+2);
 			}
 			break;
-		//«√∑π¿ÃæÓ1 ∑Ë
-		case 4:
+		case 5:
+			if(((elephant22.col==0)||(elephant22.col==2))&&(elephant22.row==0)) {
+				if(!Location2[1][1])
+					addCircle(5);
+			}
+			else if((elephant22.col==1)&&(elephant22.row==0)) {
+				if(!Location2[1][0])
+					addCircle(4);
+				if(!Location2[1][2])
+					addCircle(6);
+			}
+			else if(((elephant22.col==0)||(elephant22.col==2))&&(elephant22.row==3)) {
+				if(!Location2[2][1])
+					addCircle(8);
+			}
+			else if((elephant22.col==1)&&(elephant22.row==3)) {
+				if(!Location2[2][0])
+					addCircle(7);
+				if(!Location2[2][2])
+					addCircle(9);
+			}
+			else if((elephant22.col==0)&&(elephant22.row>0)&&(elephant22.row<3)) {
+				if(!Location2[elephant22.row-1][elephant22.col+1])
+					addCircle(3*(elephant22.row-1)+elephant22.col+2);
+				if(!Location2[elephant22.row+1][elephant22.col+1])
+					addCircle(3*(elephant22.row+1)+elephant22.col+2);
+			}
+			else if((elephant22.col==2)&&(elephant22.row>0)&&(elephant22.row<3)) {
+				if(!Location2[elephant22.row-1][elephant22.col-1])
+					addCircle(3*(elephant22.row-1)+elephant22.col);
+				if(!Location2[elephant22.row+1][elephant22.col-1])
+					addCircle(3*(elephant22.row+1)+elephant22.col);
+			}
+			else {
+				if(!Location2[elephant22.row-1][elephant22.col-1])
+					addCircle(3*(elephant22.row-1)+elephant22.col);
+				if(!Location2[elephant22.row+1][elephant22.col-1])
+					addCircle(3*(elephant22.row+1)+elephant22.col);
+				if(!Location2[elephant22.row-1][elephant22.col+1])
+					addCircle(3*(elephant22.row-1)+elephant22.col+2);
+				if(!Location2[elephant22.row+1][elephant22.col+1])
+					addCircle(3*(elephant22.row+1)+elephant22.col+2);
+			}
+			break;
+		//ÌîåÎ†àÏù¥Ïñ¥1 Î£©
+		case 6:
 			if((rook1.col==0)&&(rook1.row==0)) {
 				if(!Location1[0][1])
 					addCircle(2);
@@ -896,8 +1614,76 @@ public class TwelveChess extends Application{
 					addCircle(3*(rook1.row-1)+rook1.col+1);
 			}
 			break;
-		//«√∑π¿ÃæÓ2 ∑Ë
-		case 5:
+		case 7:
+			if((rook11.col==0)&&(rook11.row==0)) {
+				if(!Location1[0][1])
+					addCircle(2);
+				if(!Location1[1][0])
+					addCircle(4);
+			}
+			else if((rook11.col==1)&&(rook11.row==0)) {
+				if(!Location1[0][0])
+					addCircle(1);
+				if(!Location1[0][2])
+					addCircle(3);
+				if(!Location1[1][1])
+					addCircle(5);
+			}
+			else if((rook11.col==2)&&(rook11.row==0)) {
+				if(!Location1[0][1])
+					addCircle(2);
+				if(!Location1[1][2])
+					addCircle(6);
+			}
+			else if((rook11.col==0)&&(rook11.row==3)) {
+				if(!Location1[2][0])
+					addCircle(7);
+				if(!Location1[3][1])
+					addCircle(11);
+			}
+			else if((rook11.col==1)&&(rook11.row==3)) {
+				if(!Location1[2][1])
+					addCircle(8);
+				if(!Location1[3][0])
+					addCircle(10);
+				if(!Location1[3][2])
+					addCircle(12);
+			}
+			else if((rook11.col==2)&&(rook11.row==3)) {
+				if(!Location1[2][2])
+					addCircle(9);
+				if(!Location1[3][1])
+					addCircle(11);
+			}
+			else if((rook11.col==0)&&(rook11.row>0)&&(rook11.row<3)) {
+				if(!Location1[rook11.row-1][rook11.col])
+					addCircle(3*(rook11.row-1)+rook11.col+1);
+				if(!Location1[rook11.row+1][rook11.col])
+					addCircle(3*(rook11.row+1)+rook11.col+1);
+				if(!Location1[rook11.row][rook11.col+1])
+					addCircle(3*(rook11.row)+rook11.col+2);
+			}
+			else if((rook11.col==2)&&(rook11.row>0)&&(rook11.row<3)) {
+				if(!Location1[rook11.row-1][rook11.col])
+					addCircle(3*(rook11.row-1)+rook11.col+1);
+				if(!Location1[rook11.row+1][rook11.col])
+					addCircle(3*(rook11.row+1)+rook11.col+1);
+				if(!Location1[rook11.row][rook11.col-1])
+					addCircle(3*(rook11.row)+rook11.col);
+			}
+			else {
+				if(!Location1[rook11.row][rook11.col-1])
+					addCircle(3*(rook11.row)+rook11.col);
+				if(!Location1[rook11.row][rook11.col+1])
+					addCircle(3*(rook11.row)+rook11.col+2);
+				if(!Location1[rook11.row+1][rook11.col])
+					addCircle(3*(rook11.row+1)+rook11.col+1);
+				if(!Location1[rook11.row-1][rook11.col])
+					addCircle(3*(rook11.row-1)+rook11.col+1);
+			}
+			break;
+		//ÌîåÎ†àÏù¥Ïñ¥2 Î£©
+		case 8:
 			if((rook2.col==0)&&(rook2.row==0)) {
 				if(!Location2[0][1])
 					addCircle(2);
@@ -965,17 +1751,3062 @@ public class TwelveChess extends Application{
 					addCircle(3*(rook2.row-1)+rook2.col+1);
 			}
 			break;
-		//«√∑π¿ÃæÓ1 ∆˘
-		case 6:
+		case 9:
+			if((rook22.col==0)&&(rook22.row==0)) {
+				if(!Location2[0][1])
+					addCircle(2);
+				if(!Location2[1][0])
+					addCircle(4);
+			}
+			else if((rook22.col==1)&&(rook22.row==0)) {
+				if(!Location2[0][0])
+					addCircle(1);
+				if(!Location2[0][2])
+					addCircle(3);
+				if(!Location2[1][1])
+					addCircle(5);
+			}
+			else if((rook22.col==2)&&(rook22.row==0)) {
+				if(!Location2[0][1])
+					addCircle(2);
+				if(!Location2[1][2])
+					addCircle(6);
+			}
+			else if((rook22.col==0)&&(rook22.row==3)) {
+				if(!Location2[2][0])
+					addCircle(7);
+				if(!Location2[3][1])
+					addCircle(11);
+			}
+			else if((rook22.col==1)&&(rook22.row==3)) {
+				if(!Location2[2][1])
+					addCircle(8);
+				if(!Location2[3][0])
+					addCircle(10);
+				if(!Location2[3][2])
+					addCircle(12);
+			}
+			else if((rook22.col==2)&&(rook22.row==3)) {
+				if(!Location2[2][2])
+					addCircle(9);
+				if(!Location2[3][1])
+					addCircle(11);
+			}
+			else if((rook22.col==0)&&(rook22.row>0)&&(rook22.row<3)) {
+				if(!Location2[rook22.row-1][rook22.col])
+					addCircle(3*(rook22.row-1)+rook22.col+1);
+				if(!Location2[rook22.row+1][rook22.col])
+					addCircle(3*(rook22.row+1)+rook22.col+1);
+				if(!Location2[rook22.row][rook22.col+1])
+					addCircle(3*(rook22.row)+rook22.col+2);
+			}
+			else if((rook22.col==2)&&(rook22.row>0)&&(rook22.row<3)) {
+				if(!Location2[rook22.row-1][rook22.col])
+					addCircle(3*(rook22.row-1)+rook22.col+1);
+				if(!Location2[rook22.row+1][rook22.col])
+					addCircle(3*(rook22.row+1)+rook22.col+1);
+				if(!Location2[rook22.row][rook22.col-1])
+					addCircle(3*(rook22.row)+rook22.col);
+			}
+			else {
+				if(!Location2[rook22.row][rook22.col-1])
+					addCircle(3*(rook22.row)+rook22.col);
+				if(!Location2[rook22.row][rook22.col+1])
+					addCircle(3*(rook22.row)+rook22.col+2);
+				if(!Location2[rook22.row+1][rook22.col])
+					addCircle(3*(rook22.row+1)+rook22.col+1);
+				if(!Location2[rook22.row-1][rook22.col])
+					addCircle(3*(rook22.row-1)+rook22.col+1);
+			}
+			break;
+		//ÌîåÎ†àÏù¥Ïñ¥1 Ìè∞
+		case 10:
 			if(!Location1[pawn1.row-1][pawn1.col])
 				addCircle(3*(pawn1.row-1)+pawn1.col+1);
 			break;
-		//«√∑π¿ÃæÓ2 ∆˘
-		case 7:
+		case 11:
+			if(!Location1[pawn11.row-1][pawn11.col])
+				addCircle(3*(pawn11.row-1)+pawn11.col+1);
+			break;
+		//ÌîåÎ†àÏù¥Ïñ¥2 Ìè∞
+		case 12:
 			if(!Location2[pawn2.row+1][pawn2.col])
 				addCircle(3*(pawn2.row+1)+pawn2.col+1);
 			break;
+		case 13:
+			if(!Location2[pawn22.row+1][pawn22.col])
+				addCircle(3*(pawn22.row+1)+pawn22.col+1);
+			break;
+		//ÌîåÎ†àÏù¥Ïñ¥1 ÌõÑ
+		case 14:
+			if((hoo1.col==0)&&(hoo1.row==0)) {
+				if(!Location1[1][0])
+					addCircle(4);
+				if(!Location1[0][1])
+					addCircle(2);	
+			}
+			else if((hoo1.col==1)&&(hoo1.row==0)) {
+				if(!Location1[0][0])
+					addCircle(1);
+				if(!Location1[1][1])
+					addCircle(5);
+				if(!Location1[0][2])
+					addCircle(3);
+			}
+			else if((hoo1.col==2)&&(hoo1.row==0)) {
+				if(!Location1[0][1])
+					addCircle(2);
+				if(!Location1[1][2])
+					addCircle(6);
+			}
+			else if((hoo1.col==0)&&(hoo1.row==3)) {
+				if(!Location1[2][0])
+					addCircle(7);
+				if(!Location1[2][1])
+					addCircle(8);
+				if(!Location1[3][1])
+					addCircle(11);
+			}
+			else if((hoo1.col==1)&&(hoo1.row==3)) {
+				if(!Location1[2][0])
+					addCircle(7);
+				if(!Location1[2][1])
+					addCircle(8);
+				if(!Location1[2][2])
+					addCircle(9);
+				if(!Location1[3][0])
+					addCircle(10);
+				if(!Location1[3][2])
+					addCircle(12);
+			}
+			else if((hoo1.col==2)&&(hoo1.row==3)) {
+				if(!Location1[2][1])
+					addCircle(8);
+				if(!Location1[2][2])
+					addCircle(9);
+				if(!Location1[3][1])
+					addCircle(11);
+			}
+			else if((hoo1.col==0)&&(hoo1.row<3)&&(hoo1.row>0)) {
+				if(!Location1[hoo1.row-1][hoo1.col])
+					addCircle(3*(hoo1.row-1)+hoo1.col+1);
+				if(!Location1[hoo1.row-1][hoo1.col+1])
+					addCircle(3*(hoo1.row-1)+hoo1.col+2);
+				if(!Location1[hoo1.row][hoo1.col+1])
+					addCircle(3*(hoo1.row)+hoo1.col+2);
+				if(!Location1[hoo1.row+1][hoo1.col])
+					addCircle(3*(hoo1.row+1)+hoo1.col+1);
+			}
+			else if((hoo1.col==2)&&(hoo1.row<3)&&(hoo1.row>0)) {
+				if(!Location1[hoo1.row-1][hoo1.col])
+					addCircle(3*(hoo1.row-1)+hoo1.col+1);
+				if(!Location1[hoo1.row-1][hoo1.col-1])
+					addCircle(3*(hoo1.row-1)+hoo1.col);
+				if(!Location1[hoo1.row][hoo1.col-1])
+					addCircle(3*(hoo1.row)+hoo1.col);
+				if(!Location1[hoo1.row+1][hoo1.col])
+					addCircle(3*(hoo1.row+1)+hoo1.col+1);
+			}
+			else {
+				if(!Location1[hoo1.row+1][hoo1.col])
+					addCircle(3*(hoo1.row+1)+hoo1.col+1);
+				if(!Location1[hoo1.row][hoo1.col+1])
+					addCircle(3*(hoo1.row)+hoo1.col+2);
+				if(!Location1[hoo1.row-1][hoo1.col])
+					addCircle(3*(hoo1.row-1)+hoo1.col+1);
+				if(!Location1[hoo1.row][hoo1.col-1])
+					addCircle(3*(hoo1.row)+hoo1.col);
+				if(!Location1[hoo1.row-1][hoo1.col-1])
+					addCircle(3*(hoo1.row-1)+hoo1.col);
+				if(!Location1[hoo1.row-1][hoo1.col+1])
+					addCircle(3*(hoo1.row-1)+hoo1.col+2);
+			}
+			break;
+		case 15:
+			if((hoo11.col==0)&&(hoo11.row==0)) {
+				if(!Location1[1][0])
+					addCircle(4);
+				if(!Location1[0][1])
+					addCircle(2);	
+			}
+			else if((hoo11.col==1)&&(hoo11.row==0)) {
+				if(!Location1[0][0])
+					addCircle(1);
+				if(!Location1[1][1])
+					addCircle(5);
+				if(!Location1[0][2])
+					addCircle(3);
+			}
+			else if((hoo11.col==2)&&(hoo11.row==0)) {
+				if(!Location1[0][1])
+					addCircle(2);
+				if(!Location1[1][2])
+					addCircle(6);
+			}
+			else if((hoo11.col==0)&&(hoo11.row==3)) {
+				if(!Location1[2][0])
+					addCircle(7);
+				if(!Location1[2][1])
+					addCircle(8);
+				if(!Location1[3][1])
+					addCircle(11);
+			}
+			else if((hoo11.col==1)&&(hoo11.row==3)) {
+				if(!Location1[2][0])
+					addCircle(7);
+				if(!Location1[2][1])
+					addCircle(8);
+				if(!Location1[2][2])
+					addCircle(9);
+				if(!Location1[3][0])
+					addCircle(10);
+				if(!Location1[3][2])
+					addCircle(12);
+			}
+			else if((hoo11.col==2)&&(hoo11.row==3)) {
+				if(!Location1[2][1])
+					addCircle(8);
+				if(!Location1[2][2])
+					addCircle(9);
+				if(!Location1[3][1])
+					addCircle(11);
+			}
+			else if((hoo11.col==0)&&(hoo11.row<3)&&(hoo11.row>0)) {
+				if(!Location1[hoo11.row-1][hoo11.col])
+					addCircle(3*(hoo11.row-1)+hoo11.col+1);
+				if(!Location1[hoo11.row-1][hoo11.col+1])
+					addCircle(3*(hoo11.row-1)+hoo11.col+2);
+				if(!Location1[hoo11.row][hoo11.col+1])
+					addCircle(3*(hoo11.row)+hoo11.col+2);
+				if(!Location1[hoo11.row+1][hoo11.col])
+					addCircle(3*(hoo11.row+1)+hoo11.col+1);
+			}
+			else if((hoo11.col==2)&&(hoo11.row<3)&&(hoo11.row>0)) {
+				if(!Location1[hoo11.row-1][hoo11.col])
+					addCircle(3*(hoo11.row-1)+hoo11.col+1);
+				if(!Location1[hoo11.row-1][hoo11.col-1])
+					addCircle(3*(hoo11.row-1)+hoo11.col);
+				if(!Location1[hoo11.row][hoo11.col-1])
+					addCircle(3*(hoo11.row)+hoo11.col);
+				if(!Location1[hoo11.row+1][hoo11.col])
+					addCircle(3*(hoo11.row+1)+hoo11.col+1);
+			}
+			else {
+				if(!Location1[hoo11.row+1][hoo11.col])
+					addCircle(3*(hoo11.row+1)+hoo11.col+1);
+				if(!Location1[hoo11.row][hoo11.col+1])
+					addCircle(3*(hoo11.row)+hoo11.col+2);
+				if(!Location1[hoo11.row-1][hoo11.col])
+					addCircle(3*(hoo11.row-1)+hoo11.col+1);
+				if(!Location1[hoo11.row][hoo11.col-1])
+					addCircle(3*(hoo11.row)+hoo11.col);
+				if(!Location1[hoo11.row-1][hoo11.col-1])
+					addCircle(3*(hoo11.row-1)+hoo11.col);
+				if(!Location1[hoo11.row-1][hoo11.col+1])
+					addCircle(3*(hoo11.row-1)+hoo11.col+2);
+			}
+			break;
+		//ÌîåÎ†àÏù¥Ïñ¥2 ÌõÑ
+		case 16:
+			if((hoo2.col==0)&&(hoo2.row==3)) {
+				if(!Location2[2][0])
+					addCircle(7);
+				if(!Location2[3][1])
+					addCircle(11);	
+			}
+			else if((hoo2.col==1)&&(hoo2.row==3)) {
+				if(!Location2[2][1])
+					addCircle(8);
+				if(!Location2[3][0])
+					addCircle(10);
+				if(!Location2[3][2])
+					addCircle(12);
+			}
+			else if((hoo2.col==2)&&(hoo2.row==3)) {
+				if(!Location2[2][2])
+					addCircle(9);
+				if(!Location2[3][1])
+					addCircle(11);
+			}
+			else if((hoo2.col==0)&&(hoo2.row==0)) {
+				if(!Location2[1][0])
+					addCircle(4);
+				if(!Location2[0][1])
+					addCircle(2);
+				if(!Location2[1][1])
+					addCircle(5);
+			}
+			else if((hoo2.col==1)&&(hoo2.row==0)) {
+				if(!Location2[0][0])
+					addCircle(1);
+				if(!Location2[0][2])
+					addCircle(3);
+				if(!Location2[1][0])
+					addCircle(4);
+				if(!Location2[1][1])
+					addCircle(5);
+				if(!Location2[1][2])
+					addCircle(6);
+			}
+			else if((hoo2.col==2)&&(hoo2.row==0)) {
+				if(!Location2[0][1])
+					addCircle(2);
+				if(!Location2[1][1])
+					addCircle(5);
+				if(!Location2[1][2])
+					addCircle(6);
+			}
+			else if((hoo2.col==0)&&(hoo2.row<3)&&(hoo2.row>0)) {
+				if(!Location2[hoo2.row-1][hoo2.col])
+					addCircle(3*(hoo2.row-1)+hoo2.col+1);
+				if(!Location2[hoo2.row][hoo2.col+1])
+					addCircle(3*(hoo2.row)+hoo2.col+2);
+				if(!Location2[hoo2.row+1][hoo2.col+1])
+					addCircle(3*(hoo2.row+1)+hoo2.col+2);
+				if(!Location2[hoo2.row+1][hoo2.col])
+					addCircle(3*(hoo2.row+1)+hoo2.col+1);
+			}
+			else if((hoo2.col==2)&&(hoo2.row<3)&&(hoo2.row>0)) {
+				if(!Location2[hoo2.row-1][hoo2.col])
+					addCircle(3*(hoo2.row-1)+hoo2.col+1);
+				if(!Location2[hoo2.row][hoo2.col-1])
+					addCircle(3*(hoo2.row)+hoo2.col);
+				if(!Location2[hoo2.row+1][hoo2.col-1])
+					addCircle(3*(hoo2.row+1)+hoo2.col);
+				if(!Location2[hoo2.row+1][hoo2.col])
+					addCircle(3*(hoo2.row+1)+hoo2.col+1);
+			}
+			else {
+				if(!Location2[hoo2.row+1][hoo2.col])
+					addCircle(3*(hoo2.row+1)+hoo2.col+1);
+				if(!Location2[hoo2.row][hoo2.col+1])
+					addCircle(3*(hoo2.row)+hoo2.col+2);
+				if(!Location2[hoo2.row-1][hoo2.col])
+					addCircle(3*(hoo2.row-1)+hoo2.col+1);
+				if(!Location2[hoo2.row][hoo2.col-1])
+					addCircle(3*(hoo2.row)+hoo2.col);
+				if(!Location2[hoo2.row+1][hoo2.col-1])
+					addCircle(3*(hoo2.row+1)+hoo2.col);
+				if(!Location2[hoo2.row+1][hoo2.col+1])
+					addCircle(3*(hoo2.row+1)+hoo2.col+2);
+			}
+			break;
+		case 17:
+			if((hoo22.col==0)&&(hoo22.row==3)) {
+				if(!Location2[2][0])
+					addCircle(7);
+				if(!Location2[3][1])
+					addCircle(11);	
+			}
+			else if((hoo22.col==1)&&(hoo22.row==3)) {
+				if(!Location2[2][1])
+					addCircle(8);
+				if(!Location2[3][0])
+					addCircle(10);
+				if(!Location2[3][2])
+					addCircle(12);
+			}
+			else if((hoo22.col==2)&&(hoo22.row==3)) {
+				if(!Location2[2][2])
+					addCircle(9);
+				if(!Location2[3][1])
+					addCircle(11);
+			}
+			else if((hoo22.col==0)&&(hoo22.row==0)) {
+				if(!Location2[1][0])
+					addCircle(4);
+				if(!Location2[0][1])
+					addCircle(2);
+				if(!Location2[1][1])
+					addCircle(5);
+			}
+			else if((hoo22.col==1)&&(hoo22.row==0)) {
+				if(!Location2[0][0])
+					addCircle(1);
+				if(!Location2[0][2])
+					addCircle(3);
+				if(!Location2[1][0])
+					addCircle(4);
+				if(!Location2[1][1])
+					addCircle(5);
+				if(!Location2[1][2])
+					addCircle(6);
+			}
+			else if((hoo22.col==2)&&(hoo22.row==0)) {
+				if(!Location2[0][1])
+					addCircle(2);
+				if(!Location2[1][1])
+					addCircle(5);
+				if(!Location2[1][2])
+					addCircle(6);
+			}
+			else if((hoo22.col==0)&&(hoo22.row<3)&&(hoo22.row>0)) {
+				if(!Location2[hoo22.row-1][hoo22.col])
+					addCircle(3*(hoo22.row-1)+hoo22.col+1);
+				if(!Location2[hoo22.row][hoo22.col+1])
+					addCircle(3*(hoo22.row)+hoo22.col+2);
+				if(!Location2[hoo22.row+1][hoo22.col+1])
+					addCircle(3*(hoo22.row+1)+hoo22.col+2);
+				if(!Location2[hoo22.row+1][hoo22.col])
+					addCircle(3*(hoo22.row+1)+hoo22.col+1);
+			}
+			else if((hoo22.col==2)&&(hoo22.row<3)&&(hoo22.row>0)) {
+				if(!Location2[hoo22.row-1][hoo22.col])
+					addCircle(3*(hoo22.row-1)+hoo22.col+1);
+				if(!Location2[hoo22.row][hoo22.col-1])
+					addCircle(3*(hoo22.row)+hoo22.col);
+				if(!Location2[hoo22.row+1][hoo22.col-1])
+					addCircle(3*(hoo22.row+1)+hoo22.col);
+				if(!Location2[hoo22.row+1][hoo22.col])
+					addCircle(3*(hoo22.row+1)+hoo22.col+1);
+			}
+			else {
+				if(!Location2[hoo22.row+1][hoo22.col])
+					addCircle(3*(hoo22.row+1)+hoo22.col+1);
+				if(!Location2[hoo22.row][hoo22.col+1])
+					addCircle(3*(hoo22.row)+hoo22.col+2);
+				if(!Location2[hoo22.row-1][hoo22.col])
+					addCircle(3*(hoo22.row-1)+hoo22.col+1);
+				if(!Location2[hoo22.row][hoo22.col-1])
+					addCircle(3*(hoo22.row)+hoo22.col);
+				if(!Location2[hoo22.row+1][hoo22.col-1])
+					addCircle(3*(hoo22.row+1)+hoo22.col);
+				if(!Location2[hoo22.row+1][hoo22.col+1])
+					addCircle(3*(hoo22.row+1)+hoo22.col+2);
+			}
+			break;
+		}
+	}
+	
+	public void checkDie() {
+		if(whoseTurn%2==0) {
+			if(whoClicked[0]) {
+				if((king1.row==king2.row)&&(king1.col==king2.col)) {
+					king2.onBoard=false;
+				}
+				else if((king1.row==elephant2.row)&&(king1.col==elephant2.col)) {
+					elephant2.onBoard=false;
+					Location2[elephant2.row][elephant2.col]=false;
+					gameBoard.getChildren().remove(elephant2.pane);
+					if(!elephant1.onBoard&&!elephant1.isDead) {
+						elephant1.isDead=true;
+						elephant1.setSize(elephant1.isDead);
+						elephant1.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(elephant1.pane);
+					}
+					else if(!elephant11.onBoard&&!elephant11.isDead){
+						elephant11.isDead=true;
+						elephant11.setSize(elephant11.isDead);
+						elephant11.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(elephant11.pane);
+					}
+				}
+				else if((king1.row==elephant22.row)&&(king1.col==elephant22.col)) {
+					elephant22.onBoard=false;
+					Location2[elephant22.row][elephant22.col]=false;
+					gameBoard.getChildren().remove(elephant22.pane);
+					if(!elephant1.onBoard&&!elephant1.isDead) {
+						elephant1.isDead=true;
+						elephant1.setSize(elephant1.isDead);
+						elephant1.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(elephant1.pane);
+					}
+					else if(!elephant11.onBoard&&!elephant11.isDead){
+						elephant11.isDead=true;
+						elephant11.setSize(elephant11.isDead);
+						elephant11.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(elephant11.pane);
+					}
+				}
+				else if((king1.row==rook2.row)&&(king1.col==rook2.col)) {
+					rook2.onBoard=false;
+					Location2[rook2.row][rook2.col]=false;
+					gameBoard.getChildren().remove(rook2.pane);
+					if(!rook1.onBoard&&!rook1.isDead) {
+						rook1.isDead=true;
+						rook1.setSize(rook1.isDead);
+						rook1.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(rook1.pane);
+					}
+					else if(!rook11.onBoard&&!rook11.isDead){
+						rook11.isDead=true;
+						rook11.setSize(rook11.isDead);
+						rook11.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(rook11.pane);
+					}
+				}
+				else if((king1.row==rook22.row)&&(king1.col==rook22.col)) {
+					rook22.onBoard=false;
+					Location2[rook22.row][rook22.col]=false;
+					gameBoard.getChildren().remove(rook22.pane);
+					if(!rook1.onBoard&&!rook1.isDead) {
+						rook1.isDead=true;
+						rook1.setSize(rook1.isDead);
+						rook1.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(rook1.pane);
+					}
+					else if(!rook11.onBoard&&!rook11.isDead){
+						rook11.isDead=true;
+						rook11.setSize(rook11.isDead);
+						rook11.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(rook11.pane);
+					}
+				}
+				else if((king1.row==pawn2.row)&&(king1.col==pawn2.col)) {
+					pawn2.onBoard=false;
+					Location2[pawn2.row][pawn2.col]=false;
+					gameBoard.getChildren().remove(pawn2.pane);
+					if(!pawn1.onBoard&&!pawn1.isDead) {
+						pawn1.isDead=true;
+						pawn1.setSize(pawn1.isDead);
+						pawn1.setLocation(emptyDead(),10);
+						deadSpace1.getChildren().add(pawn1.pane);
+					}
+					else if(!pawn11.onBoard&&!pawn11.isDead){
+						pawn11.isDead=true;
+						pawn11.setSize(pawn11.isDead);
+						pawn11.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(pawn11.pane);
+					}
+				}
+				else if((king1.row==pawn22.row)&&(king1.col==pawn22.col)) {
+					pawn22.onBoard=false;
+					Location2[pawn22.row][pawn22.col]=false;
+					gameBoard.getChildren().remove(pawn22.pane);
+					if(!pawn1.onBoard&&!pawn1.isDead) {
+						pawn1.isDead=true;
+						pawn1.setSize(pawn1.isDead);
+						pawn1.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(pawn1.pane);
+					}
+					else if(!pawn11.onBoard&&!pawn11.isDead){
+						pawn11.isDead=true;
+						pawn11.setSize(pawn11.isDead);
+						pawn11.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(pawn11.pane);
+					}
+				}
+				else if((king1.row==hoo2.row)&&(king1.col==hoo2.col)) {
+					hoo2.onBoard=false;
+					Location2[hoo2.row][hoo2.col]=false;
+					gameBoard.getChildren().remove(hoo2.pane);
+					if(!pawn1.onBoard&&!pawn1.isDead) {
+						pawn1.isDead=true;
+						pawn1.setSize(pawn1.isDead);
+						pawn1.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(pawn1.pane);
+					}
+					else if(!pawn11.onBoard&&!pawn11.isDead){
+						pawn11.isDead=true;
+						pawn11.setSize(pawn11.isDead);
+						pawn11.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(pawn11.pane);
+					}
+				}
+				else if((king1.row==hoo22.row)&&(king1.col==hoo22.col)) {
+					hoo22.onBoard=false;
+					Location2[hoo22.row][hoo22.col]=false;
+					gameBoard.getChildren().remove(hoo22.pane);
+					if(!pawn1.onBoard&&!pawn1.isDead) {
+						pawn1.isDead=true;
+						pawn1.setSize(pawn1.isDead);
+						pawn1.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(pawn1.pane);
+					}
+					else if(!pawn11.onBoard&&!pawn11.isDead){
+						pawn11.isDead=true;
+						pawn11.setSize(pawn11.isDead);
+						pawn11.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(pawn11.pane);
+					}
+				}
+			}
+			else if(whoClicked[2]) {
+				if((elephant1.row==king2.row)&&(elephant1.col==king2.col)) {
+					king2.onBoard=false;
+				}
+				else if((elephant1.row==elephant2.row)&&(elephant1.col==elephant2.col)) {
+					elephant2.onBoard=false;
+					Location2[elephant2.row][elephant2.col]=false;
+					gameBoard.getChildren().remove(elephant2.pane);
+					if(!elephant1.onBoard&&!elephant1.isDead) {
+						elephant1.isDead=true;
+						elephant1.setSize(elephant1.isDead);
+						elephant1.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(elephant1.pane);
+					}
+					else if(!elephant11.onBoard&&!elephant11.isDead){
+						elephant11.isDead=true;
+						elephant11.setSize(elephant11.isDead);
+						elephant11.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(elephant11.pane);
+					}
+				}
+				else if((elephant1.row==elephant22.row)&&(elephant1.col==elephant22.col)) {
+					elephant22.onBoard=false;
+					Location2[elephant22.row][elephant22.col]=false;
+					gameBoard.getChildren().remove(elephant22.pane);
+					if(!elephant1.onBoard&&!elephant1.isDead) {
+						elephant1.isDead=true;
+						elephant1.setSize(elephant1.isDead);
+						elephant1.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(elephant1.pane);
+					}
+					else if(!elephant11.onBoard&&!elephant11.isDead){
+						elephant11.isDead=true;
+						elephant11.setSize(elephant11.isDead);
+						elephant11.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(elephant11.pane);
+					}
+				}
+				else if((elephant1.row==rook2.row)&&(elephant1.col==rook2.col)) {
+					rook2.onBoard=false;
+					Location2[rook2.row][rook2.col]=false;
+					gameBoard.getChildren().remove(rook2.pane);
+					if(!rook1.onBoard&&!rook1.isDead) {
+						rook1.isDead=true;
+						rook1.setSize(rook1.isDead);
+						rook1.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(rook1.pane);
+					}
+					else if(!rook11.onBoard&&!rook11.isDead){
+						rook11.isDead=true;
+						rook11.setSize(rook11.isDead);
+						rook11.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(rook11.pane);
+					}
+				}
+				else if(rook22.onBoard&&(elephant1.row==rook22.row)&&(elephant1.col==rook22.col)) {
+					Location2[rook22.row][rook22.col]=false;
+					rook22.onBoard=false;
+					gameBoard.getChildren().remove(rook22.pane);
+					if(!rook1.onBoard&&!rook1.isDead) {
+						rook1.isDead=true;
+						rook1.setSize(rook1.isDead);
+						rook1.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(rook1.pane);
+					}
+					else if(!rook11.onBoard&&!rook11.isDead){
+						rook11.isDead=true;
+						rook11.setSize(rook11.isDead);
+						rook11.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(rook11.pane);
+					}
+				}
+				else if(pawn2.onBoard&&(elephant1.row==pawn2.row)&&(elephant1.col==pawn2.col)) {
+					Location2[pawn2.row][pawn2.col]=false;
+					pawn2.onBoard=false;
+					gameBoard.getChildren().remove(pawn2.pane);
+					if(!pawn1.onBoard&&!pawn1.isDead) {
+						pawn1.isDead=true;
+						pawn1.setSize(pawn1.isDead);
+						pawn1.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(pawn1.pane);
+					}
+					else if(!pawn11.onBoard&&!pawn11.isDead){
+						pawn11.isDead=true;
+						pawn11.setSize(pawn11.isDead);
+						pawn11.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(pawn11.pane);
+					}
+				}
+				else if(pawn22.onBoard&&(elephant1.row==pawn22.row)&&(elephant1.col==pawn22.col)) {
+					Location2[pawn22.row][pawn22.col]=false;
+					pawn22.onBoard=false;
+					gameBoard.getChildren().remove(pawn22.pane);
+					if(!pawn1.onBoard&&!pawn1.isDead) {
+						pawn1.isDead=true;
+						pawn1.setSize(pawn1.isDead);
+						pawn1.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(pawn1.pane);
+					}
+					else if(!pawn11.onBoard&&!pawn11.isDead){
+						pawn11.isDead=true;
+						pawn11.setSize(pawn11.isDead);
+						pawn11.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(pawn11.pane);
+					}
+				}
+				else if(hoo2.onBoard&&(elephant1.row==hoo2.row)&&(elephant1.col==hoo2.col)) {
+					Location2[hoo2.row][hoo2.col]=false;
+					hoo2.onBoard=false;
+					gameBoard.getChildren().remove(hoo2.pane);
+					if(!pawn1.onBoard&&!pawn1.isDead) {
+						pawn1.isDead=true;
+						pawn1.setSize(pawn1.isDead);
+						pawn1.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(pawn1.pane);
+					}
+					else if(!pawn11.onBoard&&!pawn11.isDead){
+						pawn11.isDead=true;
+						pawn11.setSize(pawn11.isDead);
+						pawn11.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(pawn11.pane);
+					}
+				}
+				else if(hoo22.onBoard&&(elephant1.row==hoo22.row)&&(elephant1.col==hoo22.col)) {
+					Location2[hoo22.row][hoo22.col]=false;
+					hoo22.onBoard=false;
+					gameBoard.getChildren().remove(hoo22.pane);
+					if(!pawn1.onBoard&&!pawn1.isDead) {
+						pawn1.isDead=true;
+						pawn1.setSize(pawn1.isDead);
+						pawn1.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(pawn1.pane);
+					}
+					else if(!pawn11.onBoard&&!pawn11.isDead){
+						pawn11.isDead=true;
+						pawn11.setSize(pawn11.isDead);
+						pawn11.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(pawn11.pane);
+					}
+					}
+				}
+			else if(whoClicked[3]) {
+				if((elephant11.row==king2.row)&&(elephant11.col==king2.col)) {
+					king2.onBoard=false;
+				}
+				else if((elephant11.row==elephant2.row)&&(elephant11.col==elephant2.col)) {
+					elephant2.onBoard=false;
+					Location2[elephant2.row][elephant2.col]=false;
+					gameBoard.getChildren().remove(elephant2.pane);
+					if(!elephant1.onBoard&&!elephant1.isDead) {
+						elephant1.isDead=true;
+						elephant1.setSize(elephant1.isDead);
+						elephant1.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(elephant1.pane);
+					}
+					else if(!elephant11.onBoard&&!elephant11.isDead){
+						elephant11.isDead=true;
+						elephant11.setSize(elephant11.isDead);
+						elephant11.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(elephant11.pane);
+					}
+				}
+				else if((elephant11.row==elephant22.row)&&(elephant11.col==elephant22.col)) {
+					elephant22.onBoard=false;
+					Location2[elephant22.row][elephant22.col]=false;
+					gameBoard.getChildren().remove(elephant22.pane);
+					if(!elephant1.onBoard&&!elephant1.isDead) {
+						elephant1.isDead=true;
+						elephant1.setSize(elephant1.isDead);
+						elephant1.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(elephant1.pane);
+					}
+					else if(!elephant11.onBoard&&!elephant11.isDead){
+						elephant11.isDead=true;
+						elephant11.setSize(elephant11.isDead);
+						elephant11.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(elephant11.pane);
+					}
+				}
+				else if((elephant11.row==rook2.row)&&(elephant11.col==rook2.col)) {
+					rook2.onBoard=false;
+					Location2[rook2.row][rook2.col]=false;
+					gameBoard.getChildren().remove(rook2.pane);
+					if(!rook1.onBoard&&!rook1.isDead) {
+						rook1.isDead=true;
+						rook1.setSize(rook1.isDead);
+						rook1.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(rook1.pane);
+					}
+					else if(!rook11.onBoard&&!rook11.isDead){
+						rook11.isDead=true;
+						rook11.setSize(rook11.isDead);
+						rook11.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(rook11.pane);
+					}
+				}
+				else if(rook22.onBoard&&(elephant11.row==rook22.row)&&(elephant11.col==rook22.col)) {
+					Location2[rook22.row][rook22.col]=false;
+					rook22.onBoard=false;
+					gameBoard.getChildren().remove(rook22.pane);
+					if(!rook1.onBoard&&!rook1.isDead) {
+						rook1.isDead=true;
+						rook1.setSize(rook1.isDead);
+						rook1.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(rook1.pane);
+					}
+					else if(!rook11.onBoard&&!rook11.isDead){
+						rook11.isDead=true;
+						rook11.setSize(rook11.isDead);
+						rook11.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(rook11.pane);
+					}
+				}
+				else if(pawn2.onBoard&&(elephant11.row==pawn2.row)&&(elephant11.col==pawn2.col)) {
+					Location2[pawn2.row][pawn2.col]=false;
+					pawn2.onBoard=false;
+					gameBoard.getChildren().remove(pawn2.pane);
+					if(!pawn1.onBoard&&!pawn1.isDead) {
+						pawn1.isDead=true;
+						pawn1.setSize(pawn1.isDead);
+						pawn1.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(pawn1.pane);
+					}
+					else if(!pawn11.onBoard&&!pawn11.isDead){
+						pawn11.isDead=true;
+						pawn11.setSize(pawn11.isDead);
+						pawn11.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(pawn11.pane);
+					}
+				}
+				else if(pawn22.onBoard&&(elephant11.row==pawn22.row)&&(elephant11.col==pawn22.col)) {
+					Location2[pawn22.row][pawn22.col]=false;
+					pawn22.onBoard=false;
+					gameBoard.getChildren().remove(pawn22.pane);
+					if(!pawn1.onBoard&&!pawn1.isDead) {
+						pawn1.isDead=true;
+						pawn1.setSize(pawn1.isDead);
+						pawn1.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(pawn1.pane);
+					}
+					else if(!pawn11.onBoard&&!pawn11.isDead){
+						pawn11.isDead=true;
+						pawn11.setSize(pawn11.isDead);
+						pawn11.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(pawn11.pane);
+					}
+				}
+				else if(hoo2.onBoard&&(elephant11.row==hoo2.row)&&(elephant11.col==hoo2.col)) {
+					Location2[hoo2.row][hoo2.col]=false;
+					hoo2.onBoard=false;
+					gameBoard.getChildren().remove(hoo2.pane);
+					if(!pawn1.onBoard&&!pawn1.isDead) {
+						pawn1.isDead=true;
+						pawn1.setSize(pawn1.isDead);
+						pawn1.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(pawn1.pane);
+					}
+					else if(!pawn11.onBoard&&!pawn11.isDead){
+						pawn11.isDead=true;
+						pawn11.setSize(pawn11.isDead);
+						pawn11.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(pawn11.pane);
+					}
+				}
+				else if(hoo22.onBoard&&(elephant11.row==hoo22.row)&&(elephant11.col==hoo22.col)) {
+					Location2[hoo22.row][hoo22.col]=false;
+					hoo22.onBoard=false;
+					gameBoard.getChildren().remove(hoo22.pane);
+						if(!pawn1.onBoard&&!pawn1.isDead) {
+							pawn1.isDead=true;
+							pawn1.setSize(pawn1.isDead);
+							pawn1.setLocation(emptyDead(),0);
+							deadSpace1.getChildren().add(pawn1.pane);
+						}
+						else if(!pawn11.onBoard&&!pawn11.isDead){
+							pawn11.isDead=true;
+							pawn11.setSize(pawn11.isDead);
+							pawn11.setLocation(emptyDead(),0);
+							deadSpace1.getChildren().add(pawn11.pane);
+						}
+					}
+				}
+			else if(whoClicked[6]) {
+				if((rook1.row==king2.row)&&(rook1.col==king2.col)) {
+					king2.onBoard=false;
+				}
+				else if(elephant2.onBoard&&(rook1.row==elephant2.row)&&(rook1.col==elephant2.col)) {
+					Location2[elephant2.row][elephant2.col]=false;
+					elephant2.onBoard=false;
+					gameBoard.getChildren().remove(elephant2.pane);
+					if(!elephant1.onBoard&&!elephant1.isDead) {
+						elephant1.isDead=true;
+						elephant1.setSize(elephant1.isDead);
+						elephant1.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(elephant1.pane);
+					}
+					else if(!elephant11.onBoard&&!elephant11.isDead){
+						elephant11.isDead=true;
+						elephant11.setSize(elephant11.isDead);
+						elephant11.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(elephant11.pane);
+					}
+				}
+				else if(elephant22.onBoard&&(rook1.row==elephant22.row)&&(rook1.col==elephant22.col)) {
+					Location2[elephant22.row][elephant22.col]=false;
+					elephant22.onBoard=false;
+					gameBoard.getChildren().remove(elephant22.pane);
+					if(!elephant1.onBoard&&!elephant1.isDead) {
+						elephant1.isDead=true;
+						elephant1.setSize(elephant1.isDead);
+						elephant1.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(elephant1.pane);
+					}
+					else if(!elephant11.onBoard&&!elephant11.isDead){
+						elephant11.isDead=true;
+						elephant11.setSize(elephant11.isDead);
+						elephant11.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(elephant11.pane);
+					}
+				}
+				else if(rook2.onBoard&&(rook1.row==rook2.row)&&(rook1.col==rook2.col)) {
+					Location2[rook2.row][rook2.col]=false;
+					rook2.onBoard=false;
+					gameBoard.getChildren().remove(rook2.pane);
+					if(!rook1.onBoard&&!rook1.isDead) {
+						rook1.isDead=true;
+						rook1.setSize(rook1.isDead);
+						rook1.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(rook1.pane);
+					}
+					else if(!rook11.onBoard&&!rook11.isDead) {
+						rook11.isDead=true;
+						rook11.setSize(rook11.isDead);
+						rook11.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(rook11.pane);
+					}
+				}
+				else if(rook22.onBoard&&(rook1.row==rook22.row)&&(rook1.col==rook22.col)) {
+					Location2[rook22.row][rook22.col]=false;
+					rook22.onBoard=false;
+					gameBoard.getChildren().remove(rook22.pane);
+					if(!rook1.onBoard&&!rook1.isDead) {
+						rook1.isDead=true;
+						rook1.setSize(rook1.isDead);
+						rook1.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(rook1.pane);
+					}
+					else if(!rook11.onBoard&&!rook11.isDead) {
+						rook11.isDead=true;
+						rook11.setSize(rook11.isDead);
+						rook11.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(rook11.pane);
+					}
+				}
+				else if(pawn2.onBoard&&(rook1.row==pawn2.row)&&(rook1.col==pawn2.col)) {
+					Location2[pawn2.row][pawn2.col]=false;
+					pawn2.onBoard=false;
+					gameBoard.getChildren().remove(pawn2.pane);
+					if(!pawn1.onBoard&&!pawn1.isDead) {
+						pawn1.isDead=true;
+						pawn1.setSize(pawn1.isDead);
+						pawn1.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(pawn1.pane);
+					}
+					else if(!pawn11.onBoard&&!pawn11.isDead){
+						pawn11.isDead=true;
+						pawn11.setSize(pawn11.isDead);
+						pawn11.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(pawn11.pane);
+					}
+				}
+				else if(pawn22.onBoard&&(rook1.row==pawn22.row)&&(rook1.col==pawn22.col)) {
+					Location2[pawn22.row][pawn22.col]=false;
+					pawn22.onBoard=false;
+					gameBoard.getChildren().remove(pawn22.pane);
+					if(!pawn1.onBoard&&!pawn1.isDead) {
+						pawn1.isDead=true;
+						pawn1.setSize(pawn1.isDead);
+						pawn1.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(pawn1.pane);
+					}
+					else if(!pawn11.onBoard&&!pawn11.isDead){
+						pawn11.isDead=true;
+						pawn11.setSize(pawn11.isDead);
+						pawn11.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(pawn11.pane);
+					}
+				}				
+				else if(hoo2.onBoard&&(rook1.row==hoo2.row)&&(rook1.col==hoo2.col)) {
+					Location2[hoo2.row][hoo2.col]=false;
+					hoo2.onBoard=false;
+					gameBoard.getChildren().remove(hoo2.pane);
+					if(!pawn1.onBoard&&!pawn1.isDead) {
+						pawn1.isDead=true;
+						pawn1.setSize(pawn1.isDead);
+						pawn1.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(pawn1.pane);
+					}
+					else if(!pawn11.onBoard&&!pawn11.isDead){
+						pawn11.isDead=true;
+						pawn11.setSize(pawn11.isDead);
+						pawn11.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(pawn11.pane);
+					}
+				}
+				else if(hoo22.onBoard&&(rook1.row==hoo22.row)&&(rook1.col==hoo22.col)) {
+					Location2[hoo22.row][hoo22.col]=false;
+					hoo22.onBoard=false;
+					gameBoard.getChildren().remove(hoo22.pane);
+					if(!pawn1.onBoard&&!pawn1.isDead) {
+						pawn1.isDead=true;
+						pawn1.setSize(pawn1.isDead);
+						pawn1.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(pawn1.pane);
+					}
+					else if(!pawn11.onBoard&&!pawn11.isDead){
+						pawn11.isDead=true;
+						pawn11.setSize(pawn11.isDead);
+						pawn11.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(pawn11.pane);
+					}
+				}
+			}
+			else if(whoClicked[7]) {
+				if((rook11.row==king2.row)&&(rook11.col==king2.col)) {
+					king2.onBoard=false;
+				}
+				else if(elephant2.onBoard&&(rook11.row==elephant2.row)&&(rook11.col==elephant2.col)) {
+					Location2[elephant2.row][elephant2.col]=false;
+					elephant2.onBoard=false;
+					gameBoard.getChildren().remove(elephant2.pane);
+					if(!elephant1.onBoard&&!elephant1.isDead) {
+						elephant1.isDead=true;
+						elephant1.setSize(elephant1.isDead);
+						elephant1.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(elephant1.pane);
+					}
+					else if(!elephant11.onBoard&&!elephant11.isDead){
+						elephant11.isDead=true;
+						elephant11.setSize(elephant11.isDead);
+						elephant11.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(elephant11.pane);
+					}
+				}
+				else if(elephant22.onBoard&&(rook11.row==elephant22.row)&&(rook11.col==elephant22.col)) {
+					Location2[elephant22.row][elephant22.col]=false;
+					elephant22.onBoard=false;
+					gameBoard.getChildren().remove(elephant22.pane);
+					if(!elephant1.onBoard&&!elephant1.isDead) {
+						elephant1.isDead=true;
+						elephant1.setSize(elephant1.isDead);
+						elephant1.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(elephant1.pane);
+					}
+					else if(!elephant11.onBoard&&!elephant11.isDead){
+						elephant11.isDead=true;
+						elephant11.setSize(elephant11.isDead);
+						elephant11.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(elephant11.pane);
+					}
+				}
+				else if(rook2.onBoard&&(rook11.row==rook2.row)&&(rook11.col==rook2.col)) {
+					Location2[rook2.row][rook2.col]=false;
+					rook2.onBoard=false;
+					gameBoard.getChildren().remove(rook2.pane);
+					if(!rook1.onBoard&&!rook1.isDead) {
+						rook1.isDead=true;
+						rook1.setSize(rook1.isDead);
+						rook1.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(rook1.pane);
+					}
+					else if(!rook11.onBoard&&!rook11.isDead) {
+						rook11.isDead=true;
+						rook11.setSize(rook11.isDead);
+						rook11.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(rook11.pane);
+					}
+				}
+				else if(rook22.onBoard&&(rook11.row==rook22.row)&&(rook11.col==rook22.col)) {
+					Location2[rook22.row][rook22.col]=false;
+					rook22.onBoard=false;
+					gameBoard.getChildren().remove(rook22.pane);
+					if(!rook1.onBoard&&!rook1.isDead) {
+						rook1.isDead=true;
+						rook1.setSize(rook1.isDead);
+						rook1.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(rook1.pane);
+					}
+					else if(!rook11.onBoard&&!rook11.isDead) {
+						rook11.isDead=true;
+						rook11.setSize(rook11.isDead);
+						rook11.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(rook11.pane);
+					}
+				}
+				else if(pawn2.onBoard&&(rook11.row==pawn2.row)&&(rook11.col==pawn2.col)) {
+					Location2[pawn2.row][pawn2.col]=false;
+					pawn2.onBoard=false;
+					gameBoard.getChildren().remove(pawn2.pane);
+					if(!pawn1.onBoard&&!pawn1.isDead) {
+						pawn1.isDead=true;
+						pawn1.setSize(pawn1.isDead);
+						pawn1.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(pawn1.pane);
+					}
+					else if(!pawn11.onBoard&&!pawn11.isDead){
+						pawn11.isDead=true;
+						pawn11.setSize(pawn11.isDead);
+						pawn11.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(pawn11.pane);
+					}
+				}
+				else if(pawn22.onBoard&&(rook11.row==pawn22.row)&&(rook11.col==pawn22.col)) {
+					Location2[pawn22.row][pawn22.col]=false;
+					pawn22.onBoard=false;
+					gameBoard.getChildren().remove(pawn22.pane);
+					if(!pawn1.onBoard&&!pawn1.isDead) {
+						pawn1.isDead=true;
+						pawn1.setSize(pawn1.isDead);
+						pawn1.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(pawn1.pane);
+					}
+					else if(!pawn11.onBoard&&!pawn11.isDead){
+						pawn11.isDead=true;
+						pawn11.setSize(pawn11.isDead);
+						pawn11.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(pawn11.pane);
+					}
+				}				
+				else if(hoo2.onBoard&&(rook11.row==hoo2.row)&&(rook11.col==hoo2.col)) {
+					Location2[hoo2.row][hoo2.col]=false;
+					hoo2.onBoard=false;
+					gameBoard.getChildren().remove(hoo2.pane);
+					if(!pawn1.onBoard&&!pawn1.isDead) {
+						pawn1.isDead=true;
+						pawn1.setSize(pawn1.isDead);
+						pawn1.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(pawn1.pane);
+					}
+					else if(!pawn11.onBoard&&!pawn11.isDead){
+						pawn11.isDead=true;
+						pawn11.setSize(pawn11.isDead);
+						pawn11.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(pawn11.pane);
+					}
+				}
+				else if(hoo22.onBoard&&(rook11.row==hoo22.row)&&(rook11.col==hoo22.col)) {
+					Location2[hoo22.row][hoo22.col]=false;
+					hoo22.onBoard=false;
+					gameBoard.getChildren().remove(hoo22.pane);
+					if(!pawn1.onBoard&&!pawn1.isDead) {
+						pawn1.isDead=true;
+						pawn1.setSize(pawn1.isDead);
+						pawn1.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(pawn1.pane);
+					}
+					else if(!pawn11.onBoard&&!pawn11.isDead){
+						pawn11.isDead=true;
+						pawn11.setSize(pawn11.isDead);
+						pawn11.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(pawn11.pane);
+					}
+				}
+			}
+			else if(whoClicked[10]) {
+				if((pawn1.row==king2.row+1)&&(pawn1.col==king2.col)) {
+					king2.onBoard=false;
+				}
+				else if(elephant2.onBoard&&(pawn1.row==elephant2.row+1)&&(pawn1.col==elephant2.col)) {
+					Location2[elephant2.row][elephant2.col]=false;
+					elephant2.onBoard=false;
+					gameBoard.getChildren().remove(elephant2.pane);
+					if(!elephant1.onBoard&&!elephant1.isDead) {
+						elephant1.isDead=true;
+						elephant1.setSize(elephant1.isDead);
+						elephant1.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(elephant1.pane);
+					}
+					else if(!elephant11.onBoard&&!elephant11.isDead){
+						elephant11.isDead=true;
+						elephant11.setSize(elephant11.isDead);
+						elephant11.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(elephant11.pane);
+					}
+				}
+				else if(elephant22.onBoard&&(pawn1.row==elephant22.row+1)&&(pawn1.col==elephant22.col)) {
+					Location2[elephant22.row][elephant22.col]=false;
+					elephant22.onBoard=false;
+					gameBoard.getChildren().remove(elephant22.pane);
+					if(!elephant1.onBoard&&!elephant1.isDead) {
+						elephant1.isDead=true;
+						elephant1.setSize(elephant1.isDead);
+						elephant1.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(elephant1.pane);
+					}
+					else if(!elephant11.onBoard&&!elephant11.isDead){
+						elephant11.isDead=true;
+						elephant11.setSize(elephant11.isDead);
+						elephant11.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(elephant11.pane);
+					}
+				}
+				else if(rook2.onBoard&&(pawn1.row==rook2.row+1)&&(pawn1.col==rook2.col)) {
+					Location2[rook2.row][rook2.col]=false;
+					rook2.onBoard=false;
+					gameBoard.getChildren().remove(rook2.pane);
+					if(!rook1.onBoard&&!rook1.isDead) {
+						rook1.isDead=true;
+						rook1.setSize(rook1.isDead);
+						rook1.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(rook1.pane);
+					}
+					else if(!rook11.onBoard&&!rook11.isDead){
+						rook11.isDead=true;
+						rook11.setSize(rook11.isDead);
+						rook11.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(rook11.pane);
+					}
+				}
+				else if(rook22.onBoard&&(pawn1.row==rook22.row+1)&&(pawn1.col==rook22.col)) {
+					Location2[rook22.row][rook22.col]=false;
+					rook22.onBoard=false;
+					gameBoard.getChildren().remove(rook22.pane);
+					if(!rook1.onBoard&&!rook1.isDead) {
+						rook1.isDead=true;
+						rook1.setSize(rook1.isDead);
+						rook1.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(rook1.pane);
+					}
+					else if(!rook11.onBoard&&!rook11.isDead){
+						rook11.isDead=true;
+						rook11.setSize(rook11.isDead);
+						rook11.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(rook11.pane);
+					}
+				}
+				else if(pawn2.onBoard&&(pawn1.row==pawn2.row+1)&&(pawn1.col==pawn2.col)) {
+					Location2[pawn2.row][pawn2.col]=false;
+					pawn2.onBoard=false;
+					gameBoard.getChildren().remove(pawn2.pane);
+					if(!pawn1.onBoard&&!pawn1.isDead) {
+						pawn1.isDead=true;
+						pawn1.setSize(pawn1.isDead);
+						pawn1.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(pawn1.pane);
+					}
+					else if(!pawn11.onBoard&&!pawn11.isDead) {
+						pawn11.isDead=true;
+						pawn11.setSize(pawn11.isDead);
+						pawn11.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(pawn11.pane);
+					}
+				}
+				else if(pawn22.onBoard&&(pawn1.row==pawn22.row+1)&&(pawn1.col==pawn22.col)) {
+					Location2[pawn22.row][pawn22.col]=false;
+					pawn22.onBoard=false;
+					gameBoard.getChildren().remove(pawn22.pane);
+					if(!pawn1.onBoard&&!pawn1.isDead) {
+						pawn1.isDead=true;
+						pawn1.setSize(pawn1.isDead);
+						pawn1.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(pawn1.pane);
+					}
+					else if(!pawn11.onBoard&&!pawn11.isDead) {
+						pawn11.isDead=true;
+						pawn11.setSize(pawn11.isDead);
+						pawn11.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(pawn11.pane);
+					}
+				}
+				
+				else if(hoo2.onBoard&&(pawn1.row==hoo2.row+1)&&(pawn1.col==hoo2.col)) {
+					Location2[hoo2.row][hoo2.col]=false;
+					hoo2.onBoard=false;
+					gameBoard.getChildren().remove(hoo2.pane);					
+					if(!pawn1.onBoard&&!pawn1.isDead) {
+						pawn1.isDead=true;
+						pawn1.setSize(pawn1.isDead);
+						pawn1.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(pawn1.pane);
+					}
+					else if(!pawn11.onBoard&&!pawn11.isDead) {
+						pawn11.isDead=true;
+						pawn11.setSize(pawn11.isDead);
+						pawn11.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(pawn11.pane);
+					}	
+				}
+				else if(hoo22.onBoard&&(pawn1.row==hoo22.row+1)&&(pawn1.col==hoo22.col)) {
+					Location2[hoo22.row][hoo22.col]=false;
+					hoo22.onBoard=false;
+					gameBoard.getChildren().remove(hoo22.pane);									
+					if(!pawn1.onBoard&&!pawn1.isDead) {
+						pawn1.isDead=true;
+						pawn1.setSize(pawn1.isDead);
+						pawn1.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(pawn1.pane);
+					}
+					else if(!pawn11.onBoard&&!pawn11.isDead) {
+						pawn11.isDead=true;
+						pawn11.setSize(pawn11.isDead);
+						pawn11.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(pawn11.pane);
+					}
+				}
+			}
+			else if(whoClicked[11]) {
+				if((pawn11.row==king2.row+1)&&(pawn11.col==king2.col)) {
+					king2.onBoard=false;
+				}
+				else if(elephant2.onBoard&&(pawn11.row==elephant2.row+1)&&(pawn11.col==elephant2.col)) {
+					Location2[elephant2.row][elephant2.col]=false;
+					elephant2.onBoard=false;
+					gameBoard.getChildren().remove(elephant2.pane);
+					if(!elephant1.onBoard&&!elephant1.isDead) {
+						elephant1.isDead=true;
+						elephant1.setSize(elephant1.isDead);
+						elephant1.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(elephant1.pane);
+					}
+					else if(!elephant11.onBoard&&!elephant11.isDead){
+						elephant11.isDead=true;
+						elephant11.setSize(elephant11.isDead);
+						elephant11.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(elephant11.pane);
+					}
+				}
+				else if(elephant22.onBoard&&(pawn11.row==elephant22.row+1)&&(pawn11.col==elephant22.col)) {
+					Location2[elephant22.row][elephant22.col]=false;
+					elephant22.onBoard=false;
+					gameBoard.getChildren().remove(elephant22.pane);
+					if(!elephant1.onBoard&&!elephant1.isDead) {
+						elephant1.isDead=true;
+						elephant1.setSize(elephant1.isDead);
+						elephant1.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(elephant1.pane);
+					}
+					else if(!elephant11.onBoard&&!elephant11.isDead){
+						elephant11.isDead=true;
+						elephant11.setSize(elephant11.isDead);
+						elephant11.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(elephant11.pane);
+					}
+				}
+				else if(rook2.onBoard&&(pawn11.row==rook2.row+1)&&(pawn11.col==rook2.col)) {
+					Location2[rook2.row][rook2.col]=false;
+					rook2.onBoard=false;
+					gameBoard.getChildren().remove(rook2.pane);
+					if(!rook1.onBoard&&!rook1.isDead) {
+						rook1.isDead=true;
+						rook1.setSize(rook1.isDead);
+						rook1.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(rook1.pane);
+					}
+					else if(!rook11.onBoard&&!rook11.isDead){
+						rook11.isDead=true;
+						rook11.setSize(rook11.isDead);
+						rook11.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(rook11.pane);
+					}
+				}
+				else if(rook22.onBoard&&(pawn11.row==rook22.row+1)&&(pawn11.col==rook22.col)) {
+					Location2[rook22.row][rook22.col]=false;
+					rook22.onBoard=false;
+					gameBoard.getChildren().remove(rook22.pane);
+					if(!rook1.onBoard&&!rook1.isDead) {
+						rook1.isDead=true;
+						rook1.setSize(rook1.isDead);
+						rook1.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(rook1.pane);
+					}
+					else if(!rook11.onBoard&&!rook11.isDead){
+						rook11.isDead=true;
+						rook11.setSize(rook11.isDead);
+						rook11.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(rook11.pane);
+					}
+				}
+				else if(pawn2.onBoard&&(pawn11.row==pawn2.row+1)&&(pawn11.col==pawn2.col)) {
+					Location2[pawn2.row][pawn2.col]=false;
+					pawn2.onBoard=false;
+					gameBoard.getChildren().remove(pawn2.pane);
+					if(!pawn1.onBoard&&!pawn1.isDead) {
+						pawn1.isDead=true;
+						pawn1.setSize(pawn1.isDead);
+						pawn1.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(pawn1.pane);
+					}
+					else if(!pawn11.onBoard&&!pawn11.isDead) {
+						pawn11.isDead=true;
+						pawn11.setSize(pawn11.isDead);
+						pawn11.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(pawn11.pane);
+					}
+				}
+				else if(pawn22.onBoard&&(pawn11.row==pawn22.row+1)&&(pawn11.col==pawn22.col)) {
+					Location2[pawn22.row][pawn22.col]=false;
+					pawn22.onBoard=false;
+					gameBoard.getChildren().remove(pawn22.pane);
+					if(!pawn1.onBoard&&!pawn1.isDead) {
+						pawn1.isDead=true;
+						pawn1.setSize(pawn1.isDead);
+						pawn1.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(pawn1.pane);
+					}
+					else if(!pawn11.onBoard&&!pawn11.isDead) {
+						pawn11.isDead=true;
+						pawn11.setSize(pawn11.isDead);
+						pawn11.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(pawn11.pane);
+					}
+				}
+				
+				else if(hoo2.onBoard&&(pawn11.row==hoo2.row+1)&&(pawn11.col==hoo2.col)) {
+					Location2[hoo2.row][hoo2.col]=false;
+					hoo2.onBoard=false;
+					gameBoard.getChildren().remove(hoo2.pane);
+					if(!pawn1.onBoard&&!pawn1.isDead) {
+						pawn1.isDead=true;
+						pawn1.setSize(pawn1.isDead);
+						pawn1.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(pawn1.pane);
+					}
+					else if(!pawn11.onBoard&&!pawn11.isDead) {
+						pawn11.isDead=true;
+						pawn11.setSize(pawn11.isDead);
+						pawn11.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(pawn11.pane);
+					}
+				}
+				else if(hoo22.onBoard&&(pawn11.row==hoo22.row+1)&&(pawn11.col==hoo22.col)) {
+					Location2[hoo22.row][hoo22.col]=false;
+					hoo22.onBoard=false;
+					gameBoard.getChildren().remove(hoo22.pane);
+					if(!pawn1.onBoard&&!pawn1.isDead) {
+						pawn1.isDead=true;
+						pawn1.setSize(pawn1.isDead);
+						pawn1.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(pawn1.pane);
+					}
+					else if(!pawn11.onBoard&&!pawn11.isDead) {
+						pawn11.isDead=true;
+						pawn11.setSize(pawn11.isDead);
+						pawn11.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(pawn11.pane);
+					}
+				}
+			}
+			else if(whoClicked[14]) {
+				if((hoo1.row==king2.row)&&(hoo1.col==king2.col)) {
+					king2.onBoard=false;
+				}
+				else if(elephant2.onBoard&&(hoo1.row==elephant2.row)&&(hoo1.col==elephant2.col)) {
+					Location2[elephant2.row][elephant2.col]=false;
+					elephant2.onBoard=false;
+					gameBoard.getChildren().remove(elephant2.pane);
+					if(!elephant1.onBoard&&!elephant1.isDead) {
+						elephant1.isDead=true;
+						elephant1.setSize(elephant1.isDead);
+						elephant1.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(elephant1.pane);
+					}
+					else if(!elephant11.onBoard&&!elephant11.isDead){
+						elephant11.isDead=true;
+						elephant11.setSize(elephant11.isDead);
+						elephant11.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(elephant11.pane);
+					}
+				}
+				else if(elephant22.onBoard&&(hoo1.row==elephant22.row)&&(hoo1.col==elephant22.col)) {
+					Location2[elephant22.row][elephant22.col]=false;
+					elephant22.onBoard=false;
+					gameBoard.getChildren().remove(elephant22.pane);
+					if(!elephant1.onBoard&&!elephant1.isDead) {
+						elephant1.isDead=true;
+						elephant1.setSize(elephant1.isDead);
+						elephant1.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(elephant1.pane);
+					}
+					else if(!elephant11.onBoard&&!elephant11.isDead){
+						elephant11.isDead=true;
+						elephant11.setSize(elephant11.isDead);
+						elephant11.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(elephant11.pane);
+					}
+				}
+				else if(rook2.onBoard&&(hoo1.row==rook2.row)&&(hoo1.col==rook2.col)) {
+					Location2[rook2.row][rook2.col]=false;
+					rook2.onBoard=false;
+					gameBoard.getChildren().remove(rook2.pane);
+					if(!rook1.onBoard&&!rook1.isDead) {
+						rook1.isDead=true;
+						rook1.setSize(rook1.isDead);
+						rook1.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(rook1.pane);
+					}
+					else if(!rook11.onBoard&&!rook11.isDead){
+						rook11.isDead=true;
+						rook11.setSize(rook11.isDead);
+						rook11.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(rook11.pane);
+					}
+				}
+				else if(rook22.onBoard&&(hoo1.row==rook22.row)&&(hoo1.col==rook22.col)) {
+					Location2[rook22.row][rook22.col]=false;
+					rook22.onBoard=false;
+					gameBoard.getChildren().remove(rook22.pane);
+					if(!rook1.onBoard&&!rook1.isDead) {
+						rook1.isDead=true;
+						rook1.setSize(rook1.isDead);
+						rook1.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(rook1.pane);
+					}
+					else if(!rook11.onBoard&&!rook11.isDead){
+						rook11.isDead=true;
+						rook11.setSize(rook11.isDead);
+						rook11.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(rook11.pane);
+					}
+				}
+				else if(pawn2.onBoard&&(hoo1.row==pawn2.row)&&(hoo1.col==pawn2.col)) {
+					Location2[pawn2.row][pawn2.col]=false;
+					pawn2.onBoard=false;
+					gameBoard.getChildren().remove(pawn2.pane);
+					if(!pawn1.onBoard&&!pawn1.isDead) {
+						pawn1.isDead=true;
+						pawn1.setSize(pawn1.isDead);
+						pawn1.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(pawn1.pane);
+					}
+					else if(!pawn11.onBoard&&!pawn11.isDead){
+						pawn11.isDead=true;
+						pawn11.setSize(pawn11.isDead);
+						pawn11.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(pawn11.pane);
+					}
+				}
+				else if(pawn22.onBoard&&(hoo1.row==pawn22.row)&&(hoo1.col==pawn22.col)) {
+					Location2[pawn22.row][pawn22.col]=false;
+					pawn22.onBoard=false;
+					gameBoard.getChildren().remove(pawn22.pane);
+					if(!pawn1.onBoard&&!pawn1.isDead) {
+						pawn1.isDead=true;
+						pawn1.setSize(pawn1.isDead);
+						pawn1.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(pawn1.pane);
+					}
+					else if(!pawn11.onBoard&&!pawn11.isDead){
+						pawn11.isDead=true;
+						pawn11.setSize(pawn11.isDead);
+						pawn11.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(pawn11.pane);
+					}
+				}
+				
+				else if(hoo2.onBoard&&(hoo1.row==hoo2.row)&&(hoo1.col==hoo2.col)) {
+					Location2[hoo2.row][hoo2.col]=false;
+					hoo2.onBoard=false;
+					gameBoard.getChildren().remove(hoo2.pane);
+					if(!pawn1.onBoard&&!pawn1.isDead) {
+						pawn1.isDead=true;
+						pawn1.setSize(pawn1.isDead);
+						pawn1.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(pawn1.pane);
+					}
+					else if(!pawn11.onBoard&&!pawn11.isDead){
+						pawn11.isDead=true;
+						pawn11.setSize(pawn11.isDead);
+						pawn11.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(pawn11.pane);
+					}
+				}
+				else if(hoo22.onBoard&&(hoo1.row==hoo22.row)&&(hoo1.col==hoo22.col)) {
+					Location2[hoo22.row][hoo22.col]=false;
+					hoo22.onBoard=false;
+					gameBoard.getChildren().remove(hoo22.pane);
+					if(!pawn1.onBoard&&!pawn1.isDead) {
+						pawn1.isDead=true;
+						pawn1.setSize(pawn1.isDead);
+						pawn1.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(pawn1.pane);
+					}
+					else if(!pawn11.onBoard&&!pawn11.isDead){
+						pawn11.isDead=true;
+						pawn11.setSize(pawn11.isDead);
+						pawn11.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(pawn11.pane);
+					}
+				}
+			}
+			else if(whoClicked[15]) {
+				if((hoo11.row==king2.row)&&(hoo11.col==king2.col)) {
+					king2.onBoard=false;
+				}
+				else if(elephant2.onBoard&&(hoo11.row==elephant2.row)&&(hoo11.col==elephant2.col)) {
+					Location2[elephant2.row][elephant2.col]=false;
+					elephant2.onBoard=false;
+					gameBoard.getChildren().remove(elephant2.pane);
+					if(!elephant1.onBoard&&!elephant1.isDead) {
+						elephant1.isDead=true;
+						elephant1.setSize(elephant1.isDead);
+						elephant1.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(elephant1.pane);
+					}
+					else if(!elephant11.onBoard&&!elephant11.isDead){
+						elephant11.isDead=true;
+						elephant11.setSize(elephant11.isDead);
+						elephant11.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(elephant11.pane);
+					}
+				}
+				else if(elephant22.onBoard&&(hoo11.row==elephant22.row)&&(hoo11.col==elephant22.col)) {
+					Location2[elephant22.row][elephant22.col]=false;
+					elephant22.onBoard=false;
+					gameBoard.getChildren().remove(elephant22.pane);
+					if(!elephant1.onBoard&&!elephant1.isDead) {
+						elephant1.isDead=true;
+						elephant1.setSize(elephant1.isDead);
+						elephant1.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(elephant1.pane);
+					}
+					else if(!elephant11.onBoard&&!elephant11.isDead){
+						elephant11.isDead=true;
+						elephant11.setSize(elephant11.isDead);
+						elephant11.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(elephant11.pane);
+					}
+				}
+				else if(rook2.onBoard&&(hoo11.row==rook2.row)&&(hoo11.col==rook2.col)) {
+					Location2[rook2.row][rook2.col]=false;
+					rook2.onBoard=false;
+					gameBoard.getChildren().remove(rook2.pane);
+					if(!rook1.onBoard&&!rook1.isDead) {
+						rook1.isDead=true;
+						rook1.setSize(rook1.isDead);
+						rook1.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(rook1.pane);
+					}
+					else if(!rook11.onBoard&&!rook11.isDead){
+						rook11.isDead=true;
+						rook11.setSize(rook11.isDead);
+						rook11.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(rook11.pane);
+					}
+				}
+				else if(rook22.onBoard&&(hoo11.row==rook22.row)&&(hoo11.col==rook22.col)) {
+					Location2[rook22.row][rook22.col]=false;
+					rook22.onBoard=false;
+					gameBoard.getChildren().remove(rook22.pane);
+					if(!rook1.onBoard&&!rook1.isDead) {
+						rook1.isDead=true;
+						rook1.setSize(rook1.isDead);
+						rook1.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(rook1.pane);
+					}
+					else if(!rook11.onBoard&&!rook11.isDead){
+						rook11.isDead=true;
+						rook11.setSize(rook11.isDead);
+						rook11.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(rook11.pane);
+					}
+				}
+				else if(pawn2.onBoard&&(hoo11.row==pawn2.row)&&(hoo11.col==pawn2.col)) {
+					Location2[pawn2.row][pawn2.col]=false;
+					pawn2.onBoard=false;
+					gameBoard.getChildren().remove(pawn2.pane);
+					if(!pawn1.onBoard&&!pawn1.isDead) {
+						pawn1.isDead=true;
+						pawn1.setSize(pawn1.isDead);
+						pawn1.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(pawn1.pane);
+					}
+					else if(!pawn11.onBoard&&!pawn11.isDead){
+						pawn11.isDead=true;
+						pawn11.setSize(pawn11.isDead);
+						pawn11.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(pawn11.pane);
+					}
+				}
+				else if(pawn22.onBoard&&(hoo11.row==pawn22.row)&&(hoo11.col==pawn22.col)) {
+					Location2[pawn22.row][pawn22.col]=false;
+					pawn22.onBoard=false;
+					gameBoard.getChildren().remove(pawn22.pane);
+					if(!pawn1.onBoard&&!pawn1.isDead) {
+						pawn1.isDead=true;
+						pawn1.setSize(pawn1.isDead);
+						pawn1.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(pawn1.pane);
+					}
+					else if(!pawn11.onBoard&&!pawn11.isDead){
+						pawn11.isDead=true;
+						pawn11.setSize(pawn11.isDead);
+						pawn11.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(pawn11.pane);
+					}
+				}
+				
+				else if(hoo2.onBoard&&(hoo11.row==hoo2.row)&&(hoo11.col==hoo2.col)) {
+					Location2[hoo2.row][hoo2.col]=false;
+					hoo2.onBoard=false;
+					gameBoard.getChildren().remove(hoo2.pane);
+					if(!pawn1.onBoard&&!pawn1.isDead) {
+						pawn1.isDead=true;
+						pawn1.setSize(pawn1.isDead);
+						pawn1.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(pawn1.pane);
+					}
+					else if(!pawn11.onBoard&&!pawn11.isDead){
+						pawn11.isDead=true;
+						pawn11.setSize(pawn11.isDead);
+						pawn11.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(pawn11.pane);
+					}
+				}
+				else if(hoo22.onBoard&&(hoo11.row==hoo22.row)&&(hoo11.col==hoo22.col)) {
+					Location2[hoo22.row][hoo22.col]=false;
+					hoo22.onBoard=false;
+					gameBoard.getChildren().remove(hoo22.pane);
+					if(!pawn1.onBoard&&!pawn1.isDead) {
+						pawn1.isDead=true;
+						pawn1.setSize(pawn1.isDead);  
+						pawn1.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(pawn1.pane);
+					}
+					else if(!pawn11.onBoard&&!pawn11.isDead){
+						pawn11.isDead=true;
+						pawn11.setSize(pawn11.isDead);
+						pawn11.setLocation(emptyDead(),0);
+						deadSpace1.getChildren().add(pawn11.pane);
+					}
+				}
+			}
+		}
+		else {
+			if(whoClicked[1]) {
+				if((king2.row==king1.row)&&(king2.col==king1.col)) {
+					king1.onBoard = false;
+				}
+				else if(elephant1.onBoard&&(king2.row==elephant1.row)&&(king2.col==elephant1.col)) {
+					Location1[elephant1.row][elephant1.col]=false;
+					elephant1.onBoard=false;
+					gameBoard.getChildren().remove(elephant1.pane);
+					if(!elephant2.onBoard&&!elephant2.isDead) {
+						elephant2.isDead=true;
+						elephant2.setSize(elephant2.isDead);
+						elephant2.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(elephant2.pane);
+					}
+					else if(!elephant22.onBoard&&!elephant22.isDead){
+						elephant22.isDead=true;
+						elephant22.setSize(elephant22.isDead);
+						elephant22.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(elephant22.pane);
+					}
+				}
+				else if(elephant11.onBoard&&(king2.row==elephant11.row)&&(king2.col==elephant11.col)) {
+					Location1[elephant11.row][elephant11.col]=false;
+					elephant11.onBoard=false;
+					gameBoard.getChildren().remove(elephant11.pane);
+					if(!elephant2.onBoard&&!elephant2.isDead) {
+						elephant2.isDead=true;
+						elephant2.setSize(elephant2.isDead);
+						elephant2.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(elephant2.pane);
+					}
+					else if(!elephant22.onBoard&&!elephant22.isDead){
+						elephant22.isDead=true;
+						elephant22.setSize(elephant22.isDead);
+						elephant22.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(elephant22.pane);
+					}
+				}
+				else if(rook1.onBoard&&(king2.row==rook1.row)&&(king2.col==rook1.col)) {
+					Location1[rook1.row][rook1.col]=false;
+					rook1.onBoard=false;
+					gameBoard.getChildren().remove(rook1.pane);
+					if(!rook2.onBoard&&!rook2.isDead) {
+						rook2.isDead=true;
+						rook2.setSize(rook2.isDead);
+						rook2.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(rook2.pane);
+					}
+					else if(!rook22.onBoard&&!rook22.isDead){
+						rook22.isDead=true;
+						rook22.setSize(rook22.isDead);
+						rook22.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(rook22.pane);
+					}
+				}
+				else if(rook11.onBoard&&(king2.row==rook11.row)&&(king2.col==rook11.col)) {
+					Location1[rook11.row][rook11.col]=false;
+					rook11.onBoard=false;
+					gameBoard.getChildren().remove(rook11.pane);
+					if(!rook2.onBoard&&!rook2.isDead) {
+						rook2.isDead=true;
+						rook2.setSize(rook2.isDead);
+						rook2.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(rook2.pane);
+					}
+					else if(!rook22.onBoard&&!rook22.isDead){
+						rook22.isDead=true;
+						rook22.setSize(rook22.isDead);
+						rook22.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(rook22.pane);
+					}
+				}
+				else if(pawn1.onBoard&&(king2.row==pawn1.row)&&(king2.col==pawn1.col)) {
+					Location1[pawn1.row][pawn1.col]=false;
+					pawn1.onBoard=false;
+					gameBoard.getChildren().remove(pawn1.pane);
+					if(!pawn2.onBoard&&!pawn2.isDead) {
+						pawn2.isDead=true;
+						pawn2.setSize(pawn2.isDead);
+						pawn2.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(pawn2.pane);
+					}
+					else if(!pawn22.onBoard&&!pawn22.isDead){
+						pawn22.isDead=true;
+						pawn22.setSize(pawn22.isDead);
+						pawn22.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(pawn22.pane);
+					}
+				}
+				else if(pawn11.onBoard&&(king2.row==pawn11.row)&&(king2.col==pawn11.col)) {
+					Location1[pawn11.row][pawn11.col]=false;
+					pawn11.onBoard=false;
+					gameBoard.getChildren().remove(pawn11.pane);
+					if(!pawn2.onBoard&&!pawn2.isDead) {
+						pawn2.isDead=true;
+						pawn2.setSize(pawn2.isDead);
+						pawn2.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(pawn2.pane);
+					}
+					else if(!pawn22.onBoard&&!pawn22.isDead){
+						pawn22.isDead=true;
+						pawn22.setSize(pawn22.isDead);
+						pawn22.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(pawn22.pane);
+					}
+				}
+				else if(hoo1.onBoard&&(king2.row==hoo1.row)&&(king2.col==hoo1.col)) {
+					Location1[hoo1.row][hoo1.col]=false;
+					hoo1.onBoard=false;
+					gameBoard.getChildren().remove(hoo1.pane);
+					if(!pawn2.onBoard&&!pawn2.isDead) {
+						pawn2.isDead=true;
+						pawn2.setSize(pawn2.isDead);
+						pawn2.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(pawn2.pane);
+					}
+					else if(!pawn22.onBoard&&!pawn22.isDead){
+						pawn22.isDead=true;
+						pawn22.setSize(pawn22.isDead);
+						pawn22.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(pawn22.pane);
+					}
+				}
+				else if(hoo11.onBoard&&(king2.row==hoo11.row)&&(king2.col==hoo11.col)) {
+					Location1[hoo11.row][hoo11.col]=false;
+					hoo11.onBoard=false;
+					gameBoard.getChildren().remove(hoo11.pane);
+					if(!pawn2.onBoard&&!pawn2.isDead) {
+						pawn2.isDead=true;
+						pawn2.setSize(pawn2.isDead);
+						pawn2.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(pawn2.pane);
+					}
+					else if(!pawn22.onBoard&&!pawn22.isDead){
+						pawn22.isDead=true;
+						pawn22.setSize(pawn22.isDead);
+						pawn22.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(pawn22.pane);
+					}
+				}
+			}
+			else if(whoClicked[4]) {
+				if((elephant2.row==king1.row)&&(elephant2.col==king1.col)) {
+					king1.onBoard = false;
+				}
+				else if(elephant1.onBoard&&(elephant2.row==elephant1.row)&&(elephant2.col==elephant1.col)) {
+					Location1[elephant1.row][elephant1.col]=false;
+					elephant1.onBoard=false;
+					gameBoard.getChildren().remove(elephant1.pane);	
+					if(!elephant2.onBoard&&!elephant2.isDead) {
+						elephant2.isDead=true;
+						elephant2.setSize(elephant2.isDead);
+						elephant2.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(elephant2.pane);
+					}
+					else if(!elephant22.onBoard&&!elephant22.isDead) {
+						elephant22.isDead=true;
+						elephant22.setSize(elephant22.isDead);
+						elephant22.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(elephant22.pane);
+					}
+				}
+				else if(elephant11.onBoard&&(elephant2.row==elephant11.row)&&(elephant2.col==elephant11.col)) {
+					Location1[elephant11.row][elephant11.col]=false;
+					elephant11.onBoard=false;
+					gameBoard.getChildren().remove(elephant11.pane);		
+					if(!elephant2.onBoard&&!elephant2.isDead) {
+						elephant2.isDead=true;
+						elephant2.setSize(elephant2.isDead);
+						elephant2.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(elephant2.pane);
+					}
+					else if(!elephant22.onBoard&&!elephant22.isDead) {
+						elephant22.isDead=true;
+						elephant22.setSize(elephant22.isDead);
+						elephant22.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(elephant22.pane);
+					}
+				}
+				else if(rook1.onBoard&&(elephant2.row==rook1.row)&&(elephant2.col==rook1.col)) {
+					Location1[rook1.row][rook1.col]=false;
+					rook1.onBoard=false;
+					gameBoard.getChildren().remove(rook1.pane);
+					if(!rook2.onBoard&&!rook2.isDead) {
+						rook2.isDead=true;
+						rook2.setSize(rook2.isDead);
+						rook2.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(rook2.pane);
+					}
+					else if(!rook22.onBoard&&!rook22.isDead){
+						rook22.isDead=true;
+						rook22.setSize(rook22.isDead);
+						rook22.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(rook22.pane);
+					}
+				}
+				else if(rook11.onBoard&&(elephant2.row==rook11.row)&&(elephant2.col==rook11.col)) {
+					Location1[rook11.row][rook11.col]=false;
+					rook11.onBoard=false;
+					gameBoard.getChildren().remove(rook11.pane);
+					if(!rook2.onBoard&&!rook2.isDead) {
+						rook2.isDead=true;
+						rook2.setSize(rook2.isDead);
+						rook2.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(rook2.pane);
+					}
+					else if(!rook22.onBoard&&!rook22.isDead){
+						rook22.isDead=true;
+						rook22.setSize(rook22.isDead);
+						rook22.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(rook22.pane);
+					}
+				}
+				else if(pawn1.onBoard&&(elephant2.row==pawn1.row)&&(elephant2.col==pawn1.col)) {
+					Location1[pawn1.row][pawn1.col]=false;
+					pawn1.onBoard=false;
+					gameBoard.getChildren().remove(pawn1.pane);
+					if(!pawn2.onBoard&&!pawn2.isDead) {
+						pawn2.isDead=true;
+						pawn2.setSize(pawn2.isDead);
+						pawn2.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(pawn2.pane);
+					}
+					else if(!pawn22.onBoard&&!pawn22.isDead){
+						pawn22.isDead=true;
+						pawn22.setSize(pawn22.isDead);
+						pawn22.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(pawn22.pane);
+					}
+				}
+				else if(pawn11.onBoard&&(elephant2.row==pawn11.row)&&(elephant2.col==pawn11.col)) {
+					Location1[pawn11.row][pawn11.col]=false;
+					pawn11.onBoard=false;
+					gameBoard.getChildren().remove(pawn11.pane);
+					if(!pawn2.onBoard&&!pawn2.isDead) {
+						pawn2.isDead=true;
+						pawn2.setSize(pawn2.isDead);
+						pawn2.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(pawn2.pane);
+					}
+					else if(!pawn22.onBoard&&!pawn22.isDead){
+						pawn22.isDead=true;
+						pawn22.setSize(pawn22.isDead);
+						pawn22.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(pawn22.pane);
+					}
+				}
+				else if(hoo1.onBoard&&(elephant2.row==hoo1.row)&&(elephant2.col==hoo1.col)) {
+					Location1[hoo1.row][hoo1.col]=false;
+					hoo1.onBoard=false;
+					gameBoard.getChildren().remove(hoo1.pane);
+					if(!pawn2.onBoard&&!pawn2.isDead) {
+						pawn2.isDead=true;
+						pawn2.setSize(pawn2.isDead);
+						pawn2.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(pawn2.pane);
+					}
+					else if(!pawn22.onBoard&&!pawn22.isDead){
+						pawn22.isDead=true;
+						pawn22.setSize(pawn22.isDead);
+						pawn22.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(pawn22.pane);
+					}
+				}
+				else if(hoo11.onBoard&&(elephant2.row==hoo11.row)&&(elephant2.col==hoo11.col)) {
+					Location1[hoo11.row][hoo11.col]=false;
+					hoo11.onBoard=false;
+					gameBoard.getChildren().remove(hoo11.pane);
+					if(!pawn2.onBoard&&!pawn2.isDead) {
+						pawn2.isDead=true;
+						pawn2.setSize(pawn2.isDead);
+						pawn2.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(pawn2.pane);
+					}
+					else if(!pawn22.onBoard&&!pawn22.isDead){
+						pawn22.isDead=true;
+						pawn22.setSize(pawn22.isDead);
+						pawn22.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(pawn22.pane);
+					}
+				}
+			}
+			else if(whoClicked[5]) {
+				if((elephant22.row==king1.row)&&(elephant22.col==king1.col)) {
+					king1.onBoard = false;
+				}
+				else if(elephant1.onBoard&&(elephant22.row==elephant1.row)&&(elephant22.col==elephant1.col)) {
+					Location1[elephant1.row][elephant1.col]=false;
+					elephant1.onBoard=false;
+					gameBoard.getChildren().remove(elephant1.pane);
+					if(!elephant2.onBoard&&!elephant2.isDead) {
+						elephant2.isDead=true;
+						elephant2.setSize(elephant2.isDead);
+						elephant2.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(elephant2.pane);
+					}
+					else if(!elephant22.onBoard&&!elephant22.isDead) {
+						elephant22.isDead=true;
+						elephant22.setSize(elephant22.isDead);
+						elephant22.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(elephant22.pane);
+					}
+				}
+				else if(elephant11.onBoard&&(elephant22.row==elephant11.row)&&(elephant22.col==elephant11.col)) {
+					Location1[elephant11.row][elephant11.col]=false;
+					elephant11.onBoard=false;
+					gameBoard.getChildren().remove(elephant11.pane);					
+					if(!elephant2.onBoard&&!elephant2.isDead) {
+						elephant2.isDead=true;
+						elephant2.setSize(elephant2.isDead);
+						elephant2.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(elephant2.pane);
+					}
+					else if(!elephant22.onBoard&&!elephant22.isDead) {
+						elephant22.isDead=true;
+						elephant22.setSize(elephant22.isDead);
+						elephant22.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(elephant22.pane);
+					}
+					
+				}
+				else if(rook1.onBoard&&(elephant22.row==rook1.row)&&(elephant22.col==rook1.col)) {
+					Location1[rook1.row][rook1.col]=false;
+					rook1.onBoard=false;
+					gameBoard.getChildren().remove(rook1.pane);
+					if(!rook2.onBoard&&!rook2.isDead) {
+						rook2.isDead=true;
+						rook2.setSize(rook2.isDead);
+						rook2.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(rook2.pane);
+					}
+					else if(!rook22.onBoard&&!rook22.isDead){
+						rook22.isDead=true;
+						rook22.setSize(rook22.isDead);
+						rook22.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(rook22.pane);
+					}
+				}
+				else if(rook11.onBoard&&(elephant22.row==rook11.row)&&(elephant22.col==rook11.col)) {
+					Location1[rook11.row][rook11.col]=false;
+					rook11.onBoard=false;
+					gameBoard.getChildren().remove(rook11.pane);
+					if(!rook2.onBoard&&!rook2.isDead) {
+						rook2.isDead=true;
+						rook2.setSize(rook2.isDead);
+						rook2.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(rook2.pane);
+					}
+					else if(!rook22.onBoard&&!rook22.isDead){
+						rook22.isDead=true;
+						rook22.setSize(rook22.isDead);
+						rook22.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(rook22.pane);
+					}
+				}
+				else if(pawn1.onBoard&&(elephant22.row==pawn1.row)&&(elephant22.col==pawn1.col)) {
+					Location1[pawn1.row][pawn1.col]=false;
+					pawn1.onBoard=false;
+					gameBoard.getChildren().remove(pawn1.pane);
+					if(!pawn2.onBoard&&!pawn2.isDead) {
+						pawn2.isDead=true;
+						pawn2.setSize(pawn2.isDead);
+						pawn2.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(pawn2.pane);
+					}
+					else if(!pawn22.onBoard&&!pawn22.isDead){
+						pawn22.isDead=true;
+						pawn22.setSize(pawn22.isDead);
+						pawn22.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(pawn22.pane);
+					}
+				}
+				else if(pawn11.onBoard&&(elephant22.row==pawn11.row)&&(elephant22.col==pawn11.col)) {
+					Location1[pawn11.row][pawn11.col]=false;
+					pawn11.onBoard=false;
+					gameBoard.getChildren().remove(pawn11.pane);
+					if(!pawn2.onBoard&&!pawn2.isDead) {
+						pawn2.isDead=true;
+						pawn2.setSize(pawn2.isDead);
+						pawn2.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(pawn2.pane);
+					}
+					else if(!pawn22.onBoard&&!pawn22.isDead){
+						pawn22.isDead=true;
+						pawn22.setSize(pawn22.isDead);
+						pawn22.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(pawn22.pane);
+					}
+				}
+				else if(hoo1.onBoard&&(elephant22.row==hoo1.row)&&(elephant22.col==hoo1.col)) {
+					Location1[hoo1.row][hoo1.col]=false;
+					hoo1.onBoard=false;
+					gameBoard.getChildren().remove(hoo1.pane);
+					if(!pawn2.onBoard&&!pawn2.isDead) {
+						pawn2.isDead=true;
+						pawn2.setSize(pawn2.isDead);
+						pawn2.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(pawn2.pane);
+					}
+					else if(!pawn22.onBoard&&!pawn22.isDead){
+						pawn22.isDead=true;
+						pawn22.setSize(pawn22.isDead);
+						pawn22.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(pawn22.pane);
+					}
+				}
+				else if(hoo11.onBoard&&(elephant22.row==hoo11.row)&&(elephant22.col==hoo11.col)) {
+					Location1[hoo11.row][hoo11.col]=false;
+					hoo11.onBoard=false;
+					gameBoard.getChildren().remove(hoo11.pane);
+					if(!pawn2.onBoard&&!pawn2.isDead) {
+						pawn2.isDead=true;
+						pawn2.setSize(pawn2.isDead);
+						pawn2.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(pawn2.pane);
+					}
+					else if(!pawn22.onBoard&&!pawn22.isDead){
+						pawn22.isDead=true;
+						pawn22.setSize(pawn22.isDead);
+						pawn22.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(pawn22.pane);
+					}
+				}
+			}
+			
+			else if(whoClicked[8]) {
+				if((rook2.row==king1.row)&&(rook2.col==king1.col)) {
+					king1.onBoard = false;
+				}
+				else if(elephant1.onBoard&&(rook2.row==elephant1.row)&&(rook2.col==elephant1.col)) {
+					Location1[elephant1.row][elephant1.col]=false;
+					elephant1.onBoard=false;
+					gameBoard.getChildren().remove(elephant1.pane);
+					if(!elephant2.onBoard&&!elephant2.isDead) {
+						elephant2.isDead=true;
+						elephant2.setSize(elephant2.isDead);
+						elephant2.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(elephant2.pane);
+					}
+					else if(!elephant22.onBoard&&!elephant22.isDead){
+						elephant22.isDead=true;
+						elephant22.setSize(elephant22.isDead);
+						elephant22.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(elephant22.pane);
+					}
+				}
+				else if(elephant11.onBoard&&(rook2.row==elephant11.row)&&(rook2.col==elephant11.col)) {
+					Location1[elephant11.row][elephant11.col]=false;
+					elephant11.onBoard=false;
+					gameBoard.getChildren().remove(elephant11.pane);
+					if(!elephant2.onBoard&&!elephant2.isDead) {
+						elephant2.isDead=true;
+						elephant2.setSize(elephant2.isDead);
+						elephant2.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(elephant2.pane);
+					}
+					else if(!elephant22.onBoard&&!elephant22.isDead){
+						elephant22.isDead=true;
+						elephant22.setSize(elephant22.isDead);
+						elephant22.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(elephant22.pane);
+					}
+				}
+				else if(rook1.onBoard&&(rook2.row==rook1.row)&&(rook2.col==rook1.col)) {
+					Location1[rook1.row][rook1.col]=false;
+					rook1.onBoard=false;
+					gameBoard.getChildren().remove(rook1.pane);
+					if(!rook2.onBoard&&!rook2.isDead) {
+						rook2.isDead=true;
+						rook2.setSize(rook2.isDead);
+						rook2.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(rook2.pane);
+					}
+					else if(!rook22.onBoard&&!rook22.isDead) {
+						rook22.isDead=true;
+						rook22.setSize(rook22.isDead);
+						rook22.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(rook22.pane);
+					}
+				}
+				else if(rook11.onBoard&&(rook2.row==rook11.row)&&(rook2.col==rook11.col)) {
+					Location1[rook11.row][rook11.col]=false;
+					rook11.onBoard=false;
+					gameBoard.getChildren().remove(rook11.pane);
+					if(!rook2.onBoard&&!rook2.isDead) {
+						rook2.isDead=true;
+						rook2.setSize(rook2.isDead);
+						rook2.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(rook2.pane);
+					}
+					else if(!rook22.onBoard&&!rook22.isDead) {
+						rook22.isDead=true;
+						rook22.setSize(rook22.isDead);
+						rook22.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(rook22.pane);
+					}
+				}
+				else if(pawn1.onBoard&&(rook2.row==pawn1.row)&&(rook2.col==pawn1.col)) {
+					Location1[pawn1.row][pawn1.col]=false;
+					pawn1.onBoard=false;
+					gameBoard.getChildren().remove(pawn1.pane);
+					if(!pawn2.onBoard&&!pawn2.isDead) {
+						pawn2.isDead=true;
+						pawn2.setSize(pawn2.isDead);
+						pawn2.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(pawn2.pane);
+					}
+					else if(!pawn22.onBoard&&!pawn22.isDead){
+						pawn22.isDead=true;
+						pawn22.setSize(pawn22.isDead);
+						pawn22.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(pawn22.pane);
+					}
+				}
+				else if(pawn11.onBoard&&(rook2.row==pawn11.row)&&(rook2.col==pawn11.col)) {
+					Location1[pawn11.row][pawn11.col]=false;
+					pawn11.onBoard=false;
+					gameBoard.getChildren().remove(pawn11.pane);
+					if(!pawn2.onBoard&&!pawn2.isDead) {
+						pawn2.isDead=true;
+						pawn2.setSize(pawn2.isDead);
+						pawn2.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(pawn2.pane);
+					}
+					else if(!pawn22.onBoard&&!pawn22.isDead){
+						pawn22.isDead=true;
+						pawn22.setSize(pawn22.isDead);
+						pawn22.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(pawn22.pane);
+					}
+				}
+				else if(hoo1.onBoard&&(rook2.row==hoo1.row)&&(rook2.col==hoo1.col)) {
+					Location1[hoo1.row][hoo1.col]=false;
+					hoo1.onBoard=false;
+					gameBoard.getChildren().remove(hoo1.pane);
+					if(!pawn2.onBoard&&!pawn2.isDead) {
+						pawn2.isDead=true;
+						pawn2.setSize(pawn2.isDead);
+						pawn2.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(pawn2.pane);
+					}
+					else if(!pawn22.onBoard&&!pawn22.isDead){
+						pawn22.isDead=true;
+						pawn22.setSize(pawn22.isDead);
+						pawn22.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(pawn22.pane);
+					}
+				}
+				else if(hoo11.onBoard&&(rook2.row==hoo11.row)&&(rook2.col==hoo11.col)) {
+					Location1[hoo11.row][hoo11.col]=false;
+					hoo11.onBoard=false;
+					gameBoard.getChildren().remove(hoo11.pane);
+					if(!pawn2.onBoard&&!pawn2.isDead) {
+						pawn2.isDead=true;
+						pawn2.setSize(pawn2.isDead);
+						pawn2.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(pawn2.pane);
+					}
+					else if(!pawn22.onBoard&&!pawn22.isDead){
+						pawn22.isDead=true;
+						pawn22.setSize(pawn22.isDead);
+						pawn22.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(pawn22.pane);
+					}
+				}
+			}
+			else if(whoClicked[9]) {
+				if((rook22.row==king1.row)&&(rook22.col==king1.col)) {
+					king1.onBoard = false;
+				}
+				else if(elephant1.onBoard&&(rook22.row==elephant1.row)&&(rook22.col==elephant1.col)) {
+					Location1[elephant1.row][elephant1.col]=false;
+					elephant1.onBoard=false;
+					gameBoard.getChildren().remove(elephant1.pane);
+					if(!elephant2.onBoard&&!elephant2.isDead) {
+						elephant2.isDead=true;
+						elephant2.setSize(elephant2.isDead);
+						elephant2.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(elephant2.pane);
+					}
+					else if(!elephant22.onBoard&&!elephant22.isDead){
+						elephant22.isDead=true;
+						elephant22.setSize(elephant22.isDead);
+						elephant22.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(elephant22.pane);
+					}
+				}
+				else if(elephant11.onBoard&&(rook22.row==elephant11.row)&&(rook22.col==elephant11.col)) {
+					Location1[elephant11.row][elephant11.col]=false;
+					elephant11.onBoard=false;
+					gameBoard.getChildren().remove(elephant11.pane);
+					if(!elephant2.onBoard&&!elephant2.isDead) {
+						elephant2.isDead=true;
+						elephant2.setSize(elephant2.isDead);
+						elephant2.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(elephant2.pane);
+					}
+					else if(!elephant22.onBoard&&!elephant22.isDead){
+						elephant22.isDead=true;
+						elephant22.setSize(elephant22.isDead);
+						elephant22.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(elephant22.pane);
+					}
+				}
+				else if(rook1.onBoard&&(rook22.row==rook1.row)&&(rook22.col==rook1.col)) {
+					Location1[rook1.row][rook1.col]=false;
+					rook1.onBoard=false;
+					gameBoard.getChildren().remove(rook1.pane);
+					if(!rook2.onBoard&&!rook2.isDead) {
+						rook2.isDead=true;
+						rook2.setSize(rook2.isDead);
+						rook2.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(rook2.pane);
+					}
+					else if(!rook22.onBoard&&!rook22.isDead) {
+						rook22.isDead=true;
+						rook22.setSize(rook22.isDead);
+						rook22.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(rook22.pane);
+					}
+				}
+				else if(rook11.onBoard&&(rook22.row==rook11.row)&&(rook22.col==rook11.col)) {
+					Location1[rook11.row][rook11.col]=false;
+					rook11.onBoard=false;
+					gameBoard.getChildren().remove(rook11.pane);
+					if(!rook2.onBoard&&!rook2.isDead) {
+						rook2.isDead=true;
+						rook2.setSize(rook2.isDead);
+						rook2.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(rook2.pane);
+					}
+					else if(!rook22.onBoard&&!rook22.isDead) {
+						rook22.isDead=true;
+						rook22.setSize(rook22.isDead);
+						rook22.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(rook22.pane);
+					}
+				}
+				else if(pawn1.onBoard&&(rook22.row==pawn1.row)&&(rook22.col==pawn1.col)) {
+					Location1[pawn1.row][pawn1.col]=false;
+					pawn1.onBoard=false;
+					gameBoard.getChildren().remove(pawn1.pane);
+					if(!pawn2.onBoard&&!pawn2.isDead) {
+						pawn2.isDead=true;
+						pawn2.setSize(pawn2.isDead);
+						pawn2.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(pawn2.pane);
+					}
+					else if(!pawn22.onBoard&&!pawn22.isDead){
+						pawn22.isDead=true;
+						pawn22.setSize(pawn22.isDead);
+						pawn22.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(pawn22.pane);
+					}
+				}
+				else if(pawn11.onBoard&&(rook22.row==pawn11.row)&&(rook22.col==pawn11.col)) {
+					Location1[pawn11.row][pawn11.col]=false;
+					pawn11.onBoard=false;
+					gameBoard.getChildren().remove(pawn11.pane);
+					if(!pawn2.onBoard&&!pawn2.isDead) {
+						pawn2.isDead=true;
+						pawn2.setSize(pawn2.isDead);
+						pawn2.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(pawn2.pane);
+					}
+					else if(!pawn22.onBoard&&!pawn22.isDead){
+						pawn22.isDead=true;
+						pawn22.setSize(pawn22.isDead);
+						pawn22.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(pawn22.pane);
+					}
+				}
+				else if(hoo1.onBoard&&(rook22.row==hoo1.row)&&(rook22.col==hoo1.col)) {
+					Location1[hoo1.row][hoo1.col]=false;
+					hoo1.onBoard=false;
+					gameBoard.getChildren().remove(hoo1.pane);
+					if(!pawn2.onBoard&&!pawn2.isDead) {
+						pawn2.isDead=true;
+						pawn2.setSize(pawn2.isDead);
+						pawn2.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(pawn2.pane);
+					}
+					else if(!pawn22.onBoard&&!pawn22.isDead){
+						pawn22.isDead=true;
+						pawn22.setSize(pawn22.isDead);
+						pawn22.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(pawn22.pane);
+					}
+				}
+				else if(hoo11.onBoard&&(rook22.row==hoo11.row)&&(rook22.col==hoo11.col)) {
+					Location1[hoo11.row][hoo11.col]=false;
+					hoo11.onBoard=false;
+					gameBoard.getChildren().remove(hoo11.pane);
+					if(!pawn2.onBoard&&!pawn2.isDead) {
+						pawn2.isDead=true;
+						pawn2.setSize(pawn2.isDead);
+						pawn2.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(pawn2.pane);
+					}
+					else if(!pawn22.onBoard&&!pawn22.isDead){
+						pawn22.isDead=true;
+						pawn22.setSize(pawn22.isDead);
+						pawn22.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(pawn22.pane);
+					}
+				}
+			}
+			else if(whoClicked[12]) {
+				if((pawn2.row==king1.row-1)&&(pawn2.col==king1.col)) {
+					king1.onBoard = false;
+				}
+				else if(elephant1.onBoard&&(pawn2.row==elephant1.row-1)&&(pawn2.col==elephant1.col)) {
+					Location1[elephant1.row][elephant1.col]=false;
+					elephant1.onBoard=false;
+					gameBoard.getChildren().remove(elephant1.pane);
+					if(!elephant2.onBoard&&!elephant2.isDead) {
+						elephant2.isDead=true;
+						elephant2.setSize(elephant2.isDead);
+						elephant2.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(elephant2.pane);
+					}
+					else if(!elephant22.onBoard&&!elephant22.isDead){
+						elephant22.isDead=true;
+						elephant22.setSize(elephant22.isDead);
+						elephant22.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(elephant22.pane);
+					}
+				}
+				else if(elephant11.onBoard&&(pawn2.row==elephant11.row-1)&&(pawn2.col==elephant11.col)) {
+					Location1[elephant11.row][elephant11.col]=false;
+					elephant11.onBoard=false;
+					gameBoard.getChildren().remove(elephant11.pane);
+					if(!elephant2.onBoard&&!elephant2.isDead) {
+						elephant2.isDead=true;
+						elephant2.setSize(elephant2.isDead);
+						elephant2.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(elephant2.pane);
+					}
+					else if(!elephant22.onBoard&&!elephant22.isDead){
+						elephant22.isDead=true;
+						elephant22.setSize(elephant22.isDead);
+						elephant22.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(elephant22.pane);
+					}
+				}
+				else if(rook1.onBoard&&(pawn2.row==rook1.row-1)&&(pawn2.col==rook1.col)) {
+					Location1[rook1.row][rook1.col]=false;
+					rook1.onBoard=false;
+					gameBoard.getChildren().remove(rook1.pane);
+					if(!rook2.onBoard&&!rook2.isDead) {
+						rook2.isDead=true;
+						rook2.setSize(rook2.isDead);
+						rook2.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(rook2.pane);
+					}
+					else if(!rook22.onBoard&&!rook22.isDead){
+						rook22.isDead=true;
+						rook22.setSize(rook22.isDead);
+						rook22.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(rook22.pane);
+					}
+				}
+				else if(rook11.onBoard&&(pawn2.row==rook11.row-1)&&(pawn2.col==rook11.col)) {
+					Location1[rook11.row][rook11.col]=false;
+					rook11.onBoard=false;
+					gameBoard.getChildren().remove(rook11.pane);
+					if(!rook2.onBoard&&!rook2.isDead) {
+						rook2.isDead=true;
+						rook2.setSize(rook2.isDead);
+						rook2.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(rook2.pane);
+					}
+					else if(!rook22.onBoard&&!rook22.isDead){
+						rook22.isDead=true;
+						rook22.setSize(rook22.isDead);
+						rook22.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(rook22.pane);
+					}
+				}
+				else if(pawn1.onBoard&&(pawn2.row==pawn1.row-1)&&(pawn2.col==pawn1.col)) {
+					Location1[pawn1.row][pawn1.col]=false;
+					pawn1.onBoard=false;
+					gameBoard.getChildren().remove(pawn1.pane);
+					if(!pawn2.onBoard&&!pawn2.isDead) {
+						pawn2.isDead=true;
+						pawn2.setSize(pawn2.isDead);
+						pawn2.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(pawn2.pane);
+					}
+					else if(!pawn22.onBoard&&!pawn22.isDead) {
+						pawn22.isDead=true;
+						pawn22.setSize(pawn22.isDead);
+						pawn22.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(pawn22.pane);
+					}
+				}
+				else if(pawn11.onBoard&&(pawn2.row==pawn11.row-1)&&(pawn2.col==pawn11.col)) {
+					Location1[pawn11.row][pawn11.col]=false;
+					pawn11.onBoard=false;
+					gameBoard.getChildren().remove(pawn11.pane);				
+					if(!pawn2.onBoard&&!pawn2.isDead) {
+						pawn2.isDead=true;
+						pawn2.setSize(pawn2.isDead);
+						pawn2.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(pawn2.pane);
+					}
+					else if(!pawn22.onBoard&&!pawn22.isDead) {
+						pawn22.isDead=true;
+						pawn22.setSize(pawn22.isDead);
+						pawn22.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(pawn22.pane);
+					}
+				}
+				else if(hoo1.onBoard&&(pawn2.row==hoo1.row-1)&&(pawn2.col==hoo1.col)) {
+					Location1[hoo1.row][hoo1.col]=false;
+					hoo1.onBoard=false;
+					gameBoard.getChildren().remove(hoo1.pane);				
+					if(!pawn2.onBoard&&!pawn2.isDead) {
+						pawn2.isDead=true;
+						pawn2.setSize(pawn2.isDead);
+						pawn2.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(pawn2.pane);
+					}
+					else if(!pawn22.onBoard&&!pawn22.isDead) {
+						pawn22.isDead=true;
+						pawn22.setSize(pawn22.isDead);
+						pawn22.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(pawn22.pane);
+					}
+				}
+				else if(hoo11.onBoard&&(pawn2.row==hoo11.row-1)&&(pawn2.col==hoo11.col)) {
+					Location1[hoo11.row][hoo11.col]=false;
+					hoo11.onBoard=false;
+					gameBoard.getChildren().remove(hoo11.pane);
+					if(!pawn2.onBoard&&!pawn2.isDead) {
+						pawn2.isDead=true;
+						pawn2.setSize(pawn2.isDead);
+						pawn2.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(pawn2.pane);
+					}
+					else if(!pawn22.onBoard&&!pawn22.isDead) {
+						pawn22.isDead=true;
+						pawn22.setSize(pawn22.isDead);
+						pawn22.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(pawn22.pane);
+					}
+				}
+			}
+			else if(whoClicked[13]) {
+				if((pawn22.row==king1.row-1)&&(pawn22.col==king1.col)) {
+					king1.onBoard = false;
+				}
+				else if(elephant1.onBoard&&(pawn22.row==elephant1.row-1)&&(pawn22.col==elephant1.col)) {
+					Location1[elephant1.row][elephant1.col]=false;
+					elephant1.onBoard=false;
+					gameBoard.getChildren().remove(elephant1.pane);
+					if(!elephant2.onBoard&&!elephant2.isDead) {
+						elephant2.isDead=true;
+						elephant2.setSize(elephant2.isDead);
+						elephant2.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(elephant2.pane);
+					}
+					else if(!elephant22.onBoard&&!elephant22.isDead){
+						elephant22.isDead=true;
+						elephant22.setSize(elephant22.isDead);
+						elephant22.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(elephant22.pane);
+					}
+				}
+				else if(elephant11.onBoard&&(pawn22.row==elephant11.row-1)&&(pawn22.col==elephant11.col)) {
+					Location1[elephant11.row][elephant11.col]=false;
+					elephant11.onBoard=false;
+					gameBoard.getChildren().remove(elephant11.pane);
+					if(!elephant2.onBoard&&!elephant2.isDead) {
+						elephant2.isDead=true;
+						elephant2.setSize(elephant2.isDead);
+						elephant2.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(elephant2.pane);
+					}
+					else if(!elephant22.onBoard&&!elephant22.isDead){
+						elephant22.isDead=true;
+						elephant22.setSize(elephant22.isDead);
+						elephant22.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(elephant22.pane);
+					}
+				}
+				else if(rook1.onBoard&&(pawn22.row==rook1.row-1)&&(pawn22.col==rook1.col)) {
+					Location1[rook1.row][rook1.col]=false;
+					rook1.onBoard=false;
+					gameBoard.getChildren().remove(rook1.pane);
+					if(!rook2.onBoard&&!rook2.isDead) {
+						rook2.isDead=true;
+						rook2.setSize(rook2.isDead);
+						rook2.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(rook2.pane);
+					}
+					else if(!rook22.onBoard&&!rook22.isDead){
+						rook22.isDead=true;
+						rook22.setSize(rook22.isDead);
+						rook22.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(rook22.pane);
+					}
+				}
+				else if(rook11.onBoard&&(pawn22.row==rook11.row-1)&&(pawn22.col==rook11.col)) {
+					Location1[rook11.row][rook11.col]=false;
+					rook11.onBoard=false;
+					gameBoard.getChildren().remove(rook11.pane);
+					if(!rook2.onBoard&&!rook2.isDead) {
+						rook2.isDead=true;
+						rook2.setSize(rook2.isDead);
+						rook2.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(rook2.pane);
+					}
+					else if(!rook22.onBoard&&!rook22.isDead){
+						rook22.isDead=true;
+						rook22.setSize(rook22.isDead);
+						rook22.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(rook22.pane);
+					}
+				}
+				else if(pawn1.onBoard&&(pawn22.row==pawn1.row-1)&&(pawn22.col==pawn1.col)) {
+					Location1[pawn1.row][pawn1.col]=false;
+					pawn1.onBoard=false;
+					gameBoard.getChildren().remove(pawn1.pane);
+					if(!pawn2.onBoard&&!pawn2.isDead) {
+						pawn2.isDead=true;
+						pawn2.setSize(pawn2.isDead);
+						pawn2.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(pawn2.pane);
+					}
+					else if(!pawn22.onBoard&&!pawn22.isDead) {
+						pawn22.isDead=true;
+						pawn22.setSize(pawn22.isDead);
+						pawn22.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(pawn22.pane);
+					}
+				}
+				else if(pawn11.onBoard&&(pawn22.row==pawn11.row-1)&&(pawn22.col==pawn11.col)) {
+					Location1[pawn11.row][pawn11.col]=false;
+					pawn11.onBoard=false;
+					gameBoard.getChildren().remove(pawn11.pane);
+					if(!pawn2.onBoard&&!pawn2.isDead) {
+						pawn2.isDead=true;
+						pawn2.setSize(pawn2.isDead);
+						pawn2.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(pawn2.pane);
+					}
+					else if(!pawn22.onBoard&&!pawn22.isDead) {
+						pawn22.isDead=true;
+						pawn22.setSize(pawn22.isDead);
+						pawn22.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(pawn22.pane);
+					}
+				}
+				else if(hoo1.onBoard&&(pawn22.row==hoo1.row-1)&&(pawn22.col==hoo1.col)) {
+					Location1[hoo1.row][hoo1.col]=false;
+					hoo1.onBoard=false;
+					gameBoard.getChildren().remove(hoo1.pane);
+					if(!pawn2.onBoard&&!pawn2.isDead) {
+						pawn2.isDead=true;
+						pawn2.setSize(pawn2.isDead);
+						pawn2.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(pawn2.pane);
+					}
+					else if(!pawn22.onBoard&&!pawn22.isDead) {
+						pawn22.isDead=true;
+						pawn22.setSize(pawn22.isDead);
+						pawn22.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(pawn22.pane);
+					}
+				}
+				else if(hoo11.onBoard&&(pawn22.row==hoo11.row-1)&&(pawn22.col==hoo11.col)) {
+					Location1[hoo11.row][hoo11.col]=false;
+					hoo11.onBoard=false;
+					gameBoard.getChildren().remove(hoo11.pane);
+					if(!pawn2.onBoard&&!pawn2.isDead) {
+						pawn2.isDead=true;
+						pawn2.setSize(pawn2.isDead);
+						pawn2.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(pawn2.pane);
+					}
+					else if(!pawn22.onBoard&&!pawn22.isDead) {
+						pawn22.isDead=true;
+						pawn22.setSize(pawn22.isDead);
+						pawn22.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(pawn22.pane);
+					}			
+				}
+			}
+			else if(whoClicked[16]) {
+				if((hoo2.row==king1.row)&&(hoo2.col==king1.col)) {
+					king1.onBoard = false;
+				}
+				else if(elephant1.onBoard&&(hoo2.row==elephant1.row)&&(hoo2.col==elephant1.col)) {
+					Location1[elephant1.row][elephant1.col]=false;
+					elephant1.onBoard=false;
+					gameBoard.getChildren().remove(elephant1.pane);
+					if(!elephant2.onBoard&&!elephant2.isDead) {
+						elephant2.isDead=true;
+						elephant2.setSize(elephant2.isDead);
+						elephant2.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(elephant2.pane);
+					}
+					else if(!elephant22.onBoard&&!elephant22.isDead){
+						elephant22.isDead=true;
+						elephant22.setSize(elephant22.isDead);
+						elephant22.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(elephant22.pane);
+					}
+				}
+				else if(elephant11.onBoard&&(hoo2.row==elephant11.row)&&(hoo2.col==elephant11.col)) {
+					Location1[elephant11.row][elephant11.col]=false;
+					elephant11.onBoard=false;
+					gameBoard.getChildren().remove(elephant11.pane);
+					if(!elephant2.onBoard&&!elephant2.isDead) {
+						elephant2.isDead=true;
+						elephant2.setSize(elephant2.isDead);
+						elephant2.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(elephant2.pane);
+					}
+					else if(!elephant22.onBoard&&!elephant22.isDead){
+						elephant22.isDead=true;
+						elephant22.setSize(elephant22.isDead);
+						elephant22.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(elephant22.pane);
+					}
+				}
+				else if(rook1.onBoard&&(hoo2.row==rook1.row)&&(hoo2.col==rook1.col)) {
+					Location1[rook1.row][rook1.col]=false;
+					rook1.onBoard=false;
+					gameBoard.getChildren().remove(rook1.pane);
+					if(!rook2.onBoard&&!rook2.isDead) {
+						rook2.isDead=true;
+						rook2.setSize(rook2.isDead);
+						rook2.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(rook2.pane);
+					}
+					else if(!rook22.onBoard&&!rook22.isDead){
+						rook22.isDead=true;
+						rook22.setSize(rook22.isDead);
+						rook22.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(rook22.pane);
+					}
+				}
+				else if(rook11.onBoard&&(hoo2.row==rook11.row)&&(hoo2.col==rook11.col)) {
+					Location1[rook11.row][rook11.col]=false;
+					rook11.onBoard=false;
+					gameBoard.getChildren().remove(rook11.pane);
+					if(!rook2.onBoard&&!rook2.isDead) {
+						rook2.isDead=true;
+						rook2.setSize(rook2.isDead);
+						rook2.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(rook2.pane);
+					}
+					else if(!rook22.onBoard&&!rook22.isDead){
+						rook22.isDead=true;
+						rook22.setSize(rook22.isDead);
+						rook22.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(rook22.pane);
+					}
+				}
+				else if(pawn1.onBoard&&(hoo2.row==pawn1.row)&&(hoo2.col==pawn1.col)) {
+					Location1[pawn1.row][pawn1.col]=false;
+					pawn1.onBoard=false;
+					gameBoard.getChildren().remove(pawn1.pane);
+					if(!pawn2.onBoard&&!pawn2.isDead) {
+						pawn2.isDead=true;
+						pawn2.setSize(pawn2.isDead);
+						pawn2.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(pawn2.pane);
+					}
+					else if(!pawn22.onBoard&&!pawn22.isDead){
+						pawn22.isDead=true;
+						pawn22.setSize(pawn22.isDead);
+						pawn22.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(pawn22.pane);
+					}
+				}
+				else if(pawn11.onBoard&&(hoo2.row==pawn11.row)&&(hoo2.col==pawn11.col)) {
+					Location1[pawn11.row][pawn11.col]=false;
+					pawn11.onBoard=false;
+					gameBoard.getChildren().remove(pawn11.pane);
+					if(!pawn2.onBoard&&!pawn2.isDead) {
+						pawn2.isDead=true;
+						pawn2.setSize(pawn2.isDead);
+						pawn2.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(pawn2.pane);
+					}
+					else if(!pawn22.onBoard&&!pawn22.isDead){
+						pawn22.isDead=true;
+						pawn22.setSize(pawn22.isDead);
+						pawn22.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(pawn22.pane);
+					}
+				}
+				else if(hoo1.onBoard&&(hoo2.row==hoo1.row)&&(hoo2.col==hoo1.col)) {
+					Location1[hoo1.row][hoo1.col]=false;
+					hoo1.onBoard=false;
+					gameBoard.getChildren().remove(hoo1.pane);
+					if(!pawn2.onBoard&&!pawn2.isDead) {
+						pawn2.isDead=true;
+						pawn2.setSize(pawn2.isDead);
+						pawn2.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(pawn2.pane);
+					}
+					else if(!pawn22.onBoard&&!pawn22.isDead){
+						pawn22.isDead=true;
+						pawn22.setSize(pawn22.isDead);
+						pawn22.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(pawn22.pane);
+					}
+				}
+				else if(hoo11.onBoard&&(hoo2.row==hoo11.row)&&(hoo2.col==hoo11.col)) {
+					Location1[hoo11.row][hoo11.col]=false;
+					hoo11.onBoard=false;
+					gameBoard.getChildren().remove(hoo11.pane);
+					if(!pawn2.onBoard&&!pawn2.isDead) {
+						pawn2.isDead=true;
+						pawn2.setSize(pawn2.isDead);
+						pawn2.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(pawn2.pane);
+					}
+					else if(!pawn22.onBoard&&!pawn22.isDead){
+						pawn22.isDead=true;
+						pawn22.setSize(pawn22.isDead);
+						pawn22.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(pawn22.pane);
+					}
+				}
+			}
+			
+			else if(whoClicked[17]) {
+				if((hoo22.row==king1.row)&&(hoo22.col==king1.col)) {
+					king1.onBoard = false;
+				}
+				else if(elephant1.onBoard&&(hoo22.row==elephant1.row)&&(hoo22.col==elephant1.col)) {
+					Location1[elephant1.row][elephant1.col]=false;
+					elephant1.onBoard=false;
+					gameBoard.getChildren().remove(elephant1.pane);
+					if(!elephant2.onBoard&&!elephant2.isDead) {
+						elephant2.isDead=true;
+						elephant2.setSize(elephant2.isDead);
+						elephant2.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(elephant2.pane);
+					}
+					else if(!elephant22.onBoard&&!elephant22.isDead){
+						elephant22.isDead=true;
+						elephant22.setSize(elephant22.isDead);
+						elephant22.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(elephant22.pane);
+					}
+				}
+				else if(elephant11.onBoard&&(hoo22.row==elephant11.row)&&(hoo22.col==elephant11.col)) {
+					Location1[elephant11.row][elephant11.col]=false;
+					elephant11.onBoard=false;
+					gameBoard.getChildren().remove(elephant11.pane);
+					if(!elephant2.onBoard&&!elephant2.isDead) {
+						elephant2.isDead=true;
+						elephant2.setSize(elephant2.isDead);
+						elephant2.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(elephant2.pane);
+					}
+					else if(!elephant22.onBoard&&!elephant22.isDead){
+						elephant22.isDead=true;
+						elephant22.setSize(elephant22.isDead);
+						elephant22.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(elephant22.pane);
+					}
+				}
+				else if(rook1.onBoard&&(hoo22.row==rook1.row)&&(hoo22.col==rook1.col)) {
+					Location1[rook1.row][rook1.col]=false;
+					rook1.onBoard=false;
+					gameBoard.getChildren().remove(rook1.pane);
+					if(!rook2.onBoard&&!rook2.isDead) {
+						rook2.isDead=true;
+						rook2.setSize(rook2.isDead);
+						rook2.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(rook2.pane);
+					}
+					else if(!rook22.onBoard&&!rook22.isDead){
+						rook22.isDead=true;
+						rook22.setSize(rook22.isDead);
+						rook22.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(rook22.pane);
+					}
+				}
+				else if(rook11.onBoard&&(hoo22.row==rook11.row)&&(hoo22.col==rook11.col)) {
+					Location1[rook11.row][rook11.col]=false;
+					rook11.onBoard=false;
+					gameBoard.getChildren().remove(rook11.pane);
+					if(!rook2.onBoard&&!rook2.isDead) {
+						rook2.isDead=true;
+						rook2.setSize(rook2.isDead);
+						rook2.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(rook2.pane);
+					}
+					else if(!rook22.onBoard&&!rook22.isDead){
+						rook22.isDead=true;
+						rook22.setSize(rook22.isDead);
+						rook22.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(rook22.pane);
+					}
+				}
+				else if(pawn1.onBoard&&(hoo22.row==pawn1.row)&&(hoo22.col==pawn1.col)) {
+					Location1[pawn1.row][pawn1.col]=false;
+					pawn1.onBoard=false;
+					gameBoard.getChildren().remove(pawn1.pane);
+					if(!pawn2.onBoard&&!pawn2.isDead) {
+						pawn2.isDead=true;
+						pawn2.setSize(pawn2.isDead);
+						pawn2.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(pawn2.pane);
+					}
+					else if(!pawn22.onBoard&&!pawn22.isDead){
+						pawn22.isDead=true;
+						pawn22.setSize(pawn22.isDead);
+						pawn22.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(pawn22.pane);
+					}
+				}
+				else if(pawn11.onBoard&&(hoo22.row==pawn11.row)&&(hoo22.col==pawn11.col)) {
+					Location1[pawn11.row][pawn11.col]=false;
+					pawn11.onBoard=false;
+					gameBoard.getChildren().remove(pawn11.pane);
+					if(!pawn2.onBoard&&!pawn2.isDead) {
+						pawn2.isDead=true;
+						pawn2.setSize(pawn2.isDead);
+						pawn2.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(pawn2.pane);
+					}
+					else if(!pawn22.onBoard&&!pawn22.isDead){
+						pawn22.isDead=true;
+						pawn22.setSize(pawn22.isDead);
+						pawn22.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(pawn22.pane);
+					}
+				}
+				else if(hoo1.onBoard&&(hoo22.row==hoo1.row)&&(hoo22.col==hoo1.col)) {
+					Location1[hoo1.row][hoo1.col]=false;
+					hoo1.onBoard=false;
+					gameBoard.getChildren().remove(hoo1.pane);
+					if(!pawn2.onBoard&&!pawn2.isDead) {
+						pawn2.isDead=true;
+						pawn2.setSize(pawn2.isDead);
+						pawn2.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(pawn2.pane);
+					}
+					else if(!pawn22.onBoard&&!pawn22.isDead){
+						pawn22.isDead=true;
+						pawn22.setSize(pawn22.isDead);
+						pawn22.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(pawn22.pane);
+					}
+				}
+				else if(hoo11.onBoard&&(hoo22.row==hoo11.row)&&(hoo22.col==hoo11.col)) {
+					Location1[hoo11.row][hoo11.col]=false;
+					hoo11.onBoard=false;
+					gameBoard.getChildren().remove(hoo11.pane);
+					if(!pawn2.onBoard&&!pawn2.isDead) {
+						pawn2.isDead=true;
+						pawn2.setSize(pawn2.isDead);
+						pawn2.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(pawn2.pane);
+					}
+					else if(!pawn22.onBoard&&!pawn22.isDead){
+						pawn22.isDead=true;
+						pawn22.setSize(pawn22.isDead);
+						pawn22.setLocation(emptyDead(),0);
+						deadSpace2.getChildren().add(pawn22.pane);
+					}
+				}
+			}
+			}
+		}
+	
+	public int emptyDead() {
+		if(whoseTurn%2==0) {
+			for(int i=0;i<6;i++) {
+				if(!dead1[i]) {
+					dead1[i]=true;
+					return i;
+				}
+			}
+		}
+		else {
+			for(int i=0;i<6;i++) {
+				if(!dead2[i]) {
+					dead2[i]=true;
+					return i;
+				}
+			}
+		}
 		
+		return -1;
+	}
+	
+	public void emptyBoard() {
+		if(whoseTurn%2==0) {
+			for(int i=3;i<12;i++) {
+				if(!Location1[i/3][i%3]&&!Location2[i/3][i%3]) {
+					addCircle(i+1);
+				}
+			}
+		}
+		else {
+			for(int i=0;i<9;i++) {
+				if(!Location1[i/3][i%3]&&!Location2[i/3][i%3]) {
+					addCircle(i+1);
+				}
+			}
+		}
+	}
+	
+	public void checkKing() {
+		if(king1.row==0) {
+			kingInOtherSide1++;
+		}
+		else if(king2.row==3) {
+			kingInOtherSide2++;
+		}
+		else {
+			kingInOtherSide1=0;
+			kingInOtherSide2=0;
+		}
+	}
+	
+	public void isWin() {
+		if(kingInOtherSide1==2||!king2.onBoard) {
+			Text text = new Text("Game Over\n Player1 is win!");
+			text.setFont(Font.font("Ink Free", FontWeight.BOLD, FontPosture.ITALIC, 80));
+			text.setFill(Color.RED);
+			Pane p = new Pane();
+			p.getChildren().add(text);
+			gameBoard.getChildren().clear();
+			deadSpace1.getChildren().clear();
+			deadSpace2.getChildren().clear();
+			lbPane.getChildren().clear();
+			bdPane.setCenter(p);
+			bdPane.setPadding(new Insets(400,0,0,225));
+		}
+		else if(kingInOtherSide2==2||!king1.onBoard) {
+			Text text = new Text("Game Over\n Player2 is win!");
+			text.setFont(Font.font("Ink Free", FontWeight.BOLD, FontPosture.ITALIC, 80));
+			text.setFill(Color.RED);
+			Pane p = new Pane();
+			p.getChildren().add(text);
+			gameBoard.getChildren().clear();
+			deadSpace1.getChildren().clear();
+			deadSpace2.getChildren().clear();
+			lbPane.getChildren().clear();
+			bdPane.setCenter(p);
+			bdPane.setPadding(new Insets(400,0,0,225));
 		}
 	}
 	
@@ -996,22 +4827,20 @@ public class TwelveChess extends Application{
 		public void addPiece(StackPane p, int col, int row) {
 			super.add(p,col,row);
 		}
-		
 	}
 	
 	class King1 extends Cell{
-		private boolean isClicked = false;
-		private boolean isDead = false;
 		private int row;
 		private int col;
+		private boolean onBoard = false;
 		StackPane pane = new StackPane();
 		StackPane p = new StackPane();
+		Rectangle rec = new Rectangle(0,0,130,130);
+		Text text = new Text("Áéã");
 		
 		King1(){
-			Rectangle rec = new Rectangle(0,0,130,130);
 			rec.setFill(Color.LIGHTGRAY);
 			rec.setStroke(Color.BLACK);
-			Text text = new Text("Ë›");
 			text.setFont(Font.font("Courier", FontWeight.BOLD, FontPosture.ITALIC, 100));
 			text.setFill(Color.RED);
 			pane.getChildren().add(rec);
@@ -1032,21 +4861,32 @@ public class TwelveChess extends Application{
 			return col;
 		}
 		 
-		
+		public void setSize(boolean n) {
+			if(!n) {
+				rec.setHeight(130);
+				rec.setWidth(130);
+				text.setFont(Font.font("Courier", FontWeight.BOLD, FontPosture.ITALIC, 100));
+			}
+			else {
+				rec.setHeight(65);
+				rec.setWidth(65);
+				text.setFont(Font.font("Courier", FontWeight.BOLD, FontPosture.ITALIC, 50));
+			}
+		}
 		
 	}
 	
 	class King2 extends Cell{
-		private int isDead = 0;
 		private int row;
 		private int col;
+		private boolean onBoard = false;
 		StackPane pane = new StackPane();
+		Rectangle rec = new Rectangle(0,0,130,130);
+		Text text = new Text("Áéã");
 		
 		King2(){
-			Rectangle rec = new Rectangle(0,0,130,130);
 			rec.setFill(Color.LIGHTGRAY);
 			rec.setStroke(Color.BLACK);
-			Text text = new Text("Ë›");
 			text.setFont(Font.font("Courier", FontWeight.BOLD, FontPosture.ITALIC, 100));
 			text.setFill(Color.GREEN);
 			text.setRotate(180);
@@ -1068,19 +4908,33 @@ public class TwelveChess extends Application{
 			return col;
 		}
 		
+		public void setSize(boolean n) {
+			if(!n) {
+				rec.setHeight(130);
+				rec.setWidth(130);
+				text.setFont(Font.font("Courier", FontWeight.BOLD, FontPosture.ITALIC, 100));
+			}
+			else {
+				rec.setHeight(65);
+				rec.setWidth(65);
+				text.setFont(Font.font("Courier", FontWeight.BOLD, FontPosture.ITALIC, 50));
+			}
+		}
+		
 	}
 	
 	class Elephant1 extends Cell{
-		private int isDead = 0;
 		private int row;
 		private int col;
+		private boolean isDead = false;
+		private boolean onBoard = false;
 		StackPane pane = new StackPane();
+		Rectangle rec = new Rectangle(0,0,130,130);
+		Text text = new Text("Áõ∏");
 		
 		Elephant1(){
-			Rectangle rec = new Rectangle(0,0,130,130);
 			rec.setFill(Color.LIGHTGRAY);
 			rec.setStroke(Color.BLACK);
-			Text text = new Text("ﬂ”");
 			text.setFont(Font.font("Courier", FontWeight.BOLD, FontPosture.ITALIC, 100));
 			text.setFill(Color.RED);
 			pane.getChildren().add(rec);
@@ -1101,19 +4955,33 @@ public class TwelveChess extends Application{
 			return col;
 		}
 		
+		public void setSize(boolean n) {
+			if(!n) {
+				rec.setHeight(130);
+				rec.setWidth(130);
+				text.setFont(Font.font("Courier", FontWeight.BOLD, FontPosture.ITALIC, 100));
+			}
+			else {
+				rec.setHeight(65);
+				rec.setWidth(65);
+				text.setFont(Font.font("Courier", FontWeight.BOLD, FontPosture.ITALIC, 50));
+			}
+		}
+		
 	}
 	
 	class Elephant2 extends Cell{
-		private int isDead = 0;
 		private int row;
 		private int col;
+		private boolean isDead = false;
+		private boolean onBoard = false;
 		StackPane pane = new StackPane();
+		Rectangle rec = new Rectangle(0,0,130,130);
+		Text text = new Text("Áõ∏");
 		
-		Elephant2(){
-			Rectangle rec = new Rectangle(0,0,130,130);
+		Elephant2(){	
 			rec.setFill(Color.LIGHTGRAY);
 			rec.setStroke(Color.BLACK);
-			Text text = new Text("ﬂ”");
 			text.setFont(Font.font("Courier", FontWeight.BOLD, FontPosture.ITALIC, 100));
 			text.setFill(Color.GREEN);
 			text.setRotate(180);
@@ -1133,21 +5001,35 @@ public class TwelveChess extends Application{
 		
 		public int getCol() {
 			return col;
+		}
+		
+		public void setSize(boolean n) {
+			if(!n) {
+				rec.setHeight(130);
+				rec.setWidth(130);
+				text.setFont(Font.font("Courier", FontWeight.BOLD, FontPosture.ITALIC, 100));
+			}
+			else {
+				rec.setHeight(65);
+				rec.setWidth(65);
+				text.setFont(Font.font("Courier", FontWeight.BOLD, FontPosture.ITALIC, 50));
+			}
 		}
 		
 	}
 	
 	class Rook1 extends Cell{
-		private int isDead = 0;
 		private int row;
 		private int col;
+		private boolean isDead = false;
+		private boolean onBoard = false;
 		StackPane pane = new StackPane();
+		Rectangle rec = new Rectangle(0,0,130,130);
+		Text text = new Text("Â∞á");
 		
 		Rook1(){
-			Rectangle rec = new Rectangle(0,0,130,130);
 			rec.setFill(Color.LIGHTGRAY);
 			rec.setStroke(Color.BLACK);
-			Text text = new Text("Ì‚");
 			text.setFont(Font.font("Courier", FontWeight.BOLD, FontPosture.ITALIC, 100));
 			text.setFill(Color.RED);
 			pane.getChildren().add(rec);
@@ -1168,19 +5050,32 @@ public class TwelveChess extends Application{
 			return col;
 		}
 		
+		public void setSize(boolean n) {
+			if(!n) {
+				rec.setHeight(130);
+				rec.setWidth(130);
+				text.setFont(Font.font("Courier", FontWeight.BOLD, FontPosture.ITALIC, 100));
+			}
+			else {
+				rec.setHeight(65);
+				rec.setWidth(65);
+				text.setFont(Font.font("Courier", FontWeight.BOLD, FontPosture.ITALIC, 50));
+			}
+		}
 	}
 	
 	class Rook2 extends Cell{
-		private int isDead = 0;
 		private int row;
 		private int col;
+		private boolean isDead = false;
+		private boolean onBoard = false;
 		StackPane pane = new StackPane();
+		Rectangle rec = new Rectangle(0,0,130,130);
+		Text text = new Text("Â∞á");
 		
 		Rook2(){
-			Rectangle rec = new Rectangle(0,0,130,130);
 			rec.setFill(Color.LIGHTGRAY);
 			rec.setStroke(Color.BLACK);
-			Text text = new Text("Ì‚");
 			text.setFont(Font.font("Courier", FontWeight.BOLD, FontPosture.ITALIC, 100));
 			text.setFill(Color.GREEN);
 			text.setRotate(180);
@@ -1202,19 +5097,32 @@ public class TwelveChess extends Application{
 			return col;
 		}
 		
+		public void setSize(boolean n) {
+			if(!n) {
+				rec.setHeight(130);
+				rec.setWidth(130);
+				text.setFont(Font.font("Courier", FontWeight.BOLD, FontPosture.ITALIC, 100));
+			}
+			else {
+				rec.setHeight(65);
+				rec.setWidth(65);
+				text.setFont(Font.font("Courier", FontWeight.BOLD, FontPosture.ITALIC, 50));
+			}
+		}
 	}
 	
 	class Pawn1 extends Cell{
-		private int isDead = 0;
 		private int row;
 		private int col;
+		private boolean isDead = false;
+		private boolean onBoard = false;
 		StackPane pane = new StackPane();
+		Rectangle rec = new Rectangle(0,0,130,130);
+		Text text = new Text("Â≠ê");
 		
 		Pawn1(){
-			Rectangle rec = new Rectangle(0,0,130,130);
 			rec.setFill(Color.LIGHTGRAY);
 			rec.setStroke(Color.BLACK);
-			Text text = new Text("Ì≠");
 			text.setFont(Font.font("Courier", FontWeight.BOLD, FontPosture.ITALIC, 100));
 			text.setFill(Color.RED);
 			pane.getChildren().add(rec);
@@ -1235,19 +5143,32 @@ public class TwelveChess extends Application{
 			return col;
 		}
 		
+		public void setSize(boolean n) {
+			if(!n) {
+				rec.setHeight(130);
+				rec.setWidth(130);
+				text.setFont(Font.font("Courier", FontWeight.BOLD, FontPosture.ITALIC, 100));
+			}
+			else {
+				rec.setHeight(65);
+				rec.setWidth(65);
+				text.setFont(Font.font("Courier", FontWeight.BOLD, FontPosture.ITALIC, 50));
+			}
+		}
 	}
 	
 	class Pawn2 extends Cell{
-		private int isDead = 0;
 		private int row;
 		private int col;
+		private boolean isDead = false;
+		private boolean onBoard = false;
 		StackPane pane = new StackPane();
+		Rectangle rec = new Rectangle(0,0,130,130);
+		Text text = new Text("Â≠ê");
 		
 		Pawn2(){
-			Rectangle rec = new Rectangle(0,0,130,130);
 			rec.setFill(Color.LIGHTGRAY);
 			rec.setStroke(Color.BLACK);
-			Text text = new Text("Ì≠");
 			text.setFont(Font.font("Courier", FontWeight.BOLD, FontPosture.ITALIC, 100));
 			text.setFill(Color.GREEN);
 			text.setRotate(180);
@@ -1267,6 +5188,112 @@ public class TwelveChess extends Application{
 		
 		public int getCol() {
 			return col;
+		}
+		
+		public void setSize(boolean n) {
+			if(!n) {
+				rec.setHeight(130);
+				rec.setWidth(130);
+				text.setFont(Font.font("Courier", FontWeight.BOLD, FontPosture.ITALIC, 100));
+			}
+			else {
+				rec.setHeight(65);
+				rec.setWidth(65);
+				text.setFont(Font.font("Courier", FontWeight.BOLD, FontPosture.ITALIC, 50));
+			}
+		}
+	}
+	
+	class Hoo1 extends Cell{
+		private int row;
+		private int col;
+		private boolean isDead = false;
+		private boolean onBoard = false;
+		StackPane pane = new StackPane();
+		Rectangle rec = new Rectangle(0,0,130,130);
+		Text text = new Text("‰æØ");
+		
+		Hoo1(){
+			rec.setFill(Color.LIGHTGRAY);
+			rec.setStroke(Color.BLACK);
+			text.setFont(Font.font("Courier", FontWeight.BOLD, FontPosture.ITALIC, 100));
+			text.setFill(Color.RED);
+			pane.getChildren().add(rec);
+			pane.getChildren().add(text);
+		}
+		
+		public void setLocation(int col, int row) {
+			super.addPiece(pane, col, row);
+			this.row = row;
+			this.col = col;
+		}
+		
+		public int getRow() {
+			return row;
+		}
+		
+		public int getCol() {
+			return col;
+		}
+		
+		public void setSize(boolean n) {
+			if(!n) {
+				rec.setHeight(130);
+				rec.setWidth(130);
+				text.setFont(Font.font("Courier", FontWeight.BOLD, FontPosture.ITALIC, 100));
+			}
+			else {
+				rec.setHeight(65);
+				rec.setWidth(65);
+				text.setFont(Font.font("Courier", FontWeight.BOLD, FontPosture.ITALIC, 50));
+			}
+		}
+	}
+	
+	class Hoo2 extends Cell{
+		private int row;
+		private int col;
+		private boolean isDead = false;
+		private boolean onBoard = false;
+		StackPane pane = new StackPane();
+		Rectangle rec = new Rectangle(0,0,130,130);
+		Text text = new Text("‰æØ");
+		
+		Hoo2(){
+			rec.setFill(Color.LIGHTGRAY);
+			rec.setStroke(Color.BLACK);
+			text.setFont(Font.font("Courier", FontWeight.BOLD, FontPosture.ITALIC, 100));
+			text.setFill(Color.GREEN);
+			text.setRotate(180);
+			pane.getChildren().add(rec);
+			pane.getChildren().add(text);
+		}
+		
+		public void setLocation(int col, int row) {
+			super.addPiece(pane, col, row);
+			this.row = row;
+			this.col = col;
+		}
+		
+		public int getRow() {
+			return row;
+		}
+		
+		public int getCol() {
+			return col;
+		}
+		
+		public void setSize(boolean n) {
+			if(!n) {
+				rec.setHeight(130);
+				rec.setWidth(130);
+				text.setFont(Font.font("Courier", FontWeight.BOLD, FontPosture.ITALIC, 100));
+			}
+			else {
+				rec.setHeight(65);
+				rec.setWidth(65);
+				text.setFont(Font.font("Courier", FontWeight.BOLD, FontPosture.ITALIC, 50));
+			}
 		}
 	}
 	
@@ -1306,6 +5333,4 @@ public class TwelveChess extends Application{
 	public static void main(String[] args) {
 		launch(args);
 	}
-	
-
 }

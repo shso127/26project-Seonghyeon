@@ -45,3 +45,10 @@
 ![image1](https://user-images.githubusercontent.com/102570051/187072353-3ba56c49-6340-4c2f-b42a-d0c61b72f3f6.png) 
 + 각각의 기물 class 제작
 + 기물들의 이동 구현
+
+# 9/5 죽은기물처리 및 승리조건 구현
+![image2](https://user-images.githubusercontent.com/102570051/188353251-e20eb4d0-effb-423c-9a5c-5721954cd593.png)
+![image3](https://user-images.githubusercontent.com/102570051/188353271-ccf48a56-0103-4f34-9904-7066adef0b19.png)
++ 죽었을 때 기물이 죽은공간으로 이동하도록 제작
++ 자(子)기물이 상대진영으로 들어와 있을 때 후(侯)기물로 변하도록 설정
++ 게임이 끝나는 조건 구현
